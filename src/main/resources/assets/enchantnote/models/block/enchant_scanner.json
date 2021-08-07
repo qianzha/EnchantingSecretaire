@@ -1,0 +1,131 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"textures": {
+		"body": "block/anvil",
+		"1_top": "block/anvil_top",
+		"8_top": "block/cauldron_top",
+		"8_side": "block/cauldron_side",
+		"inside": "block/cauldron_inner"
+	},
+	"elements": [
+		{
+			"name": "Anvil base",
+			"from": [2, 0, 2],
+			"to": [14, 4, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [4, 2, 0, 14], "rotation": 270, "texture": "#body"},
+				"east": {"uv": [2, 12, 14, 16], "texture": "#body"},
+				"south": {"uv": [0, 2, 4, 14], "rotation": 90, "texture": "#body"},
+				"west": {"uv": [2, 12, 14, 16], "texture": "#body"},
+				"up": {"uv": [2, 2, 14, 14], "rotation": 90, "texture": "#body"},
+				"down": {"uv": [2, 2, 14, 14], "rotation": 270, "texture": "#body", "cullface": "down"}
+			}
+		},
+		{
+			"name": "Lower narrow portion",
+			"from": [3, 4, 4],
+			"to": [13, 5, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [5, 3, 4, 13], "rotation": 270, "texture": "#body"},
+				"east": {"uv": [4, 11, 12, 12], "texture": "#body"},
+				"south": {"uv": [4, 3, 5, 13], "rotation": 90, "texture": "#body"},
+				"west": {"uv": [4, 11, 12, 12], "texture": "#body"},
+				"up": {"uv": [4, 3, 12, 13], "rotation": 90, "texture": "#body"}
+			}
+		},
+		{
+			"name": "Anvil top",
+			"from": [0, 12, 3],
+			"to": [16, 16, 16],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [16, 0, 12, 16], "rotation": 270, "texture": "#body"},
+				"east": {"uv": [3, 0, 13, 4], "texture": "#body"},
+				"south": {"uv": [12, 0, 16, 16], "rotation": 90, "texture": "#body"},
+				"west": {"uv": [3, 0, 13, 4], "texture": "#body"},
+				"up": {"uv": [3, 0, 13, 16], "rotation": 90, "texture": "#1_top"},
+				"down": {"uv": [3, 0, 13, 16], "rotation": 270, "texture": "#body"}
+			}
+		},
+		{
+			"name": "column left",
+			"from": [11, 5, 5],
+			"to": [12, 9, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [1, 1, 2, 5], "texture": "#8_top", "cullface": "up"},
+				"east": {"uv": [0, 1, 4, 5], "rotation": 90, "texture": "#8_side", "cullface": "east"},
+				"west": {"uv": [0, 1, 4, 5], "rotation": 270, "texture": "#8_side", "cullface": "up"}
+			}
+		},
+		{
+			"name": "column right",
+			"from": [4, 5, 5],
+			"to": [5, 9, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [1, 1, 2, 5], "texture": "#8_top", "cullface": "up"},
+				"east": {"uv": [0, 1, 4, 5], "rotation": 90, "texture": "#8_side", "cullface": "east"},
+				"west": {"uv": [0, 1, 4, 5], "rotation": 270, "texture": "#8_side", "cullface": "up"}
+			}
+		},
+		{
+			"name": "column back",
+			"from": [4, 5, 9],
+			"to": [12, 9, 10],
+			"faces": {
+				"north": {"uv": [4, 3, 12, 7], "texture": "#inside"},
+				"east": {"uv": [0, 5, 4, 6], "rotation": 90, "texture": "#8_side"},
+				"south": {"uv": [3, 7, 11, 11], "texture": "#8_side"},
+				"west": {"uv": [0, 5, 4, 6], "rotation": 270, "texture": "#8_side"}
+			}
+		},
+		{
+			"name": "column top",
+			"from": [4, 9, 5],
+			"to": [12, 15, 10],
+			"faces": {
+				"north": {"uv": [4, 8, 12, 14], "texture": "#8_side"},
+				"east": {"uv": [6, 1, 12, 6], "rotation": 90, "texture": "#8_side"},
+				"south": {"uv": [3, 1, 11, 7], "texture": "#8_side"},
+				"west": {"uv": [4, 1, 10, 6], "rotation": 270, "texture": "#8_side"},
+				"up": {"uv": [0, 0, 8, 5], "texture": "#missing"},
+				"down": {"uv": [4, 1, 12, 6], "rotation": 180, "texture": "#8_side"}
+			}
+		}
+	],
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [0, 135, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"fixed": {
+			"rotation": [0, 90, 0],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "group",
+			"origin": [8, 0, 8],
+			"color": 0,
+			"children": [0, 1, 2]
+		},
+		{
+			"name": "column",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [3, 4, 5, 6]
+		},
+		{
+			"name": "enchanting_table",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": []
+		}
+	]
+}

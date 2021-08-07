@@ -1,0 +1,41 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"textures": {
+		"9_side": "enchantnote:block/enchanting_table_cloth_side",
+		"9_top": "enchantnote:block/enchanting_table_cloth"
+	},
+	"elements": [
+		{
+			"from": [-0.125, 11.1, 2.5],
+			"to": [16.125, 16.1, 16.5],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "north"},
+				"east": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "east"},
+				"south": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "south"},
+				"west": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#9_top"}
+			}
+		}
+	],
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [0, 135, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"fixed": {
+			"rotation": [0, 90, 0],
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "enchanting_table",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

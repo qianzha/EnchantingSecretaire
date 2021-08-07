@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "enchantnote:item/enchant_note"
+  }
+}
