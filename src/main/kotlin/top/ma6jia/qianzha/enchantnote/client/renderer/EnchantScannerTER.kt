@@ -7,16 +7,26 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.model.BookModel
+import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.texture.NativeImage
 import net.minecraft.client.renderer.tileentity.EnchantmentTableTileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.container.PlayerContainer
+import net.minecraft.item.Items
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.vector.Quaternion
 import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.util.text.TextComponent
+import net.minecraft.util.text.TextComponentUtils
+import net.minecraft.util.text.TextPropertiesManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import top.ma6jia.qianzha.enchantnote.EnchantNote
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
+import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
 @OnlyIn(Dist.CLIENT)
@@ -34,10 +44,10 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         combinedOverlayIn: Int
     ) {
         val blockState = tileEntityIn.blockState
+        val facing = blockState.get(LecternBlock.FACING)
         if (blockState.get(EnchantScannerBlock.HAS_KEEPER)) {
             matrixStackIn.push()
             matrixStackIn.translate(0.5, 1.0625, 0.5)
-            val facing = blockState.get(LecternBlock.FACING)
             val f = facing.rotateY().horizontalAngle
             matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-f))
             matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(67.5f))
@@ -55,17 +65,38 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
                 1.0f,
                 1.0f
             )
-            matrixStackIn.pop()
 
-            renderBookshelfInv(matrixStackIn, bufferIn, 0f, 0f, 0f,
-                facing, blockState.get(EnchantScannerBlock.BOOKSHELF_INV))
+            val enchantable = tileEntityIn.inventory[2].getStackInSlot(0)
+            if (!enchantable.isEmpty) {
+                matrixStackIn.translate(0.1875, 0.0, 0.0)
+                matrixStackIn.scale(0.5f, 0.5f, 0.5f)
+                matrixStackIn.rotate(Quaternion(0f, 270f, 0f, true))
+                val itemRender = Minecraft.getInstance().itemRenderer
+                val itemModel = itemRender.getItemModelWithOverrides(enchantable, tileEntityIn.world, null)
+                itemRender.renderItem(
+                    enchantable,
+                    ItemCameraTransforms.TransformType.FIXED,
+                    true,
+                    matrixStackIn,
+                    bufferIn,
+                    combinedLightIn,
+                    combinedOverlayIn,
+                    itemModel
+                )
+            }
+
+            matrixStackIn.pop()
         }
+
+        renderBookshelfInv(
+            matrixStackIn, bufferIn, facing,
+            blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
+        )
     }
 
     fun renderBookshelfInv(
         matrixStackIn: MatrixStack,
         bufferIn: IRenderTypeBuffer,
-        x: Float, y: Float, z: Float,
         facing: Direction,
         num: Int
     ) {
@@ -100,7 +131,7 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         matrixStackIn.push()
 
         // 11, 5, 4
-        when(facing) {
+        when (facing) {
             Direction.NORTH ->
                 matrixStackIn.translate(0.6875, 0.5625, 0.25)
             Direction.EAST ->
@@ -114,9 +145,9 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-yDegree))
         matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(180f))
 
-        add(builder, matrixStackIn, 0f, y + h, 0f, backMinU, backMaxV)
+        add(builder, matrixStackIn, 0f, h, 0f, backMinU, backMaxV)
         add(builder, matrixStackIn, w, h, 0f, backMaxU, backMaxV)
-        add(builder, matrixStackIn, w, 0f, 0f,backMaxU, backMinV)
+        add(builder, matrixStackIn, w, 0f, 0f, backMaxU, backMinV)
         add(builder, matrixStackIn, 0f, 0f, 0f, backMinU, backMinV)
 
         add(builder, matrixStackIn, 0f, 0f, d, topMinU, topMinV)

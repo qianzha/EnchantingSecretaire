@@ -30,7 +30,14 @@ import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 import java.awt.print.Book
 
 
-class EnchantScannerBlock : Block {
+class EnchantScannerBlock() : Block(
+    (
+            Properties.create(Material.ANVIL)
+                .hardnessAndResistance(5.0F, 1200.0F)
+                .sound(SoundType.ANVIL)
+                .notSolid()
+            )
+) {
     companion object {
         val FACING: DirectionProperty = HorizontalBlock.HORIZONTAL_FACING
         val HAS_TABLE_CLOTH: BooleanProperty = BooleanProperty.create("has_table_cloth")
@@ -57,12 +64,7 @@ class EnchantScannerBlock : Block {
         )
     }
 
-    constructor() : super((
-            Properties.create(Material.ANVIL)
-                .hardnessAndResistance(5.0F, 1200.0F)
-                .sound(SoundType.ANVIL)
-                .notSolid()
-            )) {
+    init {
         defaultState = this.stateContainer.baseState
             .with(FACING, Direction.NORTH)
             .with(HAS_TABLE_CLOTH, false)
@@ -98,26 +100,23 @@ class EnchantScannerBlock : Block {
         }
     }
 
-    override fun onReplaced(state: BlockState, worldIn: World, pos: BlockPos, newState: BlockState, isMoving: Boolean) {
-        if(!state.matchesBlock(newState.block)) {
-            val tileEntity = worldIn.getTileEntity(pos)
-            if (tileEntity is EnchantScannerTE) {
-                tileEntity.inventory.forEach {
-                    for (i in 0 until it.slots) {
-                        spawnAsEntity(worldIn, pos, it.getStackInSlot(i))
-                    }
-                }
-            }
-            super.onReplaced(state, worldIn, pos, newState, isMoving)
-        }
-    }
-
     override fun hasTileEntity(state: BlockState?) = true
 
-    override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity? {
+    override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity {
         return EnchantScannerTE()
     }
 
+    override fun onBlockHarvested(worldIn: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+        val tileEntity = worldIn.getTileEntity(pos)
+        if (tileEntity is EnchantScannerTE) {
+            tileEntity.inventory.forEach {
+                for (i in 0 until it.slots) {
+                    spawnAsEntity(worldIn, pos, it.getStackInSlot(i))
+                }
+            }
+        }
+        super.onBlockHarvested(worldIn, pos, state, player)
+    }
 
     override fun onBlockClicked(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity) {
         val tileEntity = worldIn.getTileEntity(pos)
@@ -143,10 +142,6 @@ class EnchantScannerBlock : Block {
     ): ActionResultType {
         val tileEntity = worldIn.getTileEntity(pos)
         val held = player.getHeldItem(handIn)
-        held.getCapability(ENoteCapability.ENCHANT_KEEPER_CAPABILITY).ifPresent {
-            EnchantNote.LOGGER.debug("IEnchantKeeper = {}", it)
-            EnchantNote.LOGGER.debug("entities = {}", it.entities())
-        }
         if (!held.isEmpty && tileEntity is EnchantScannerTE) {
             tileEntity.inventory.forEach {
                 val rest = it.insertItem(0, held, false)

@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.event.AttachCapabilitiesEvent
+import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import org.apache.logging.log4j.LogManager
@@ -30,6 +31,7 @@ object EnchantNote {
 
         MOD_BUS.addListener(EnchantNote::onSetUpEvent)
         FORGE_BUS.addListener(EnchantNote::attachCap)
+        FORGE_BUS.addListener(EnchantNote::onBlockBreak)
 
         ENoteBlocks.REGISTRY.register(MOD_BUS)
         ENoteItems.REGISTRY.register(MOD_BUS)
@@ -55,6 +57,13 @@ object EnchantNote {
                 ResourceLocation(MODID, "enchant_keeper"),
                 EnchantKeeperProvider()
             )
+        }
+    }
+
+    private fun onBlockBreak(event: BlockEvent.BreakEvent) {
+        if(event.player.isCreative && event.player.isSneaking && event.state.block === ENoteBlocks.ENCHANT_SCANNER) {
+            event.isCanceled = true
+            event.state.onBlockClicked(event.player.world, event.pos, event.player)
         }
     }
 }

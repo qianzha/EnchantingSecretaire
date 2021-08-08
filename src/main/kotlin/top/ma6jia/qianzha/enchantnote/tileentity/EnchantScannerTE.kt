@@ -5,9 +5,12 @@ import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
+import net.minecraft.network.NetworkManager
+import net.minecraft.network.play.server.SUpdateTileEntityPacket
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.Direction
 import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY
 import net.minecraftforge.items.ItemHandlerHelper
@@ -62,7 +65,40 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
             checkBookshelfInv()
         }
     }
-    val inventory = listOf(keeperStackHandler, bookshelfHandler)
+
+    private val enchantable = object : ItemStackHandler(1) {
+        override fun isItemValid(slot: Int, stack: ItemStack): Boolean {
+            return stack.isEnchantable
+        }
+
+        override fun onContentsChanged(slot: Int) {
+            super.onContentsChanged(slot)
+            world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
+        }
+    }
+
+    val inventory = listOf(keeperStackHandler, bookshelfHandler, enchantable)
+
+    override fun getUpdatePacket(): SUpdateTileEntityPacket {
+        return SUpdateTileEntityPacket(pos, 1, updateTag)
+    }
+
+    override fun onDataPacket(net: NetworkManager?, pkt: SUpdateTileEntityPacket?) {
+        super.onDataPacket(net, pkt)
+        handleUpdateTag(world!!.getBlockState(pkt!!.pos), pkt!!.nbtCompound)
+    }
+
+    override fun getUpdateTag(): CompoundNBT {
+        val nbt = super.getUpdateTag()
+        nbt.put("enchantable", enchantable.getStackInSlot(0).write(CompoundNBT()))
+        return nbt
+    }
+
+    override fun handleUpdateTag(state: BlockState?, tag: CompoundNBT?) {
+        super.handleUpdateTag(state, tag)
+        enchantable.setStackInSlot(0, ItemStack.read(tag!!.getCompound("enchantable")))
+    }
+
 
     fun checkHasKeeper() {
         val newState = blockState.with(
@@ -92,11 +128,13 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         super.read(state, nbt)
         keeperStackHandler.deserializeNBT(nbt.getCompound("keeper"))
         bookshelfHandler.deserializeNBT(nbt.getCompound("books"))
+        enchantable.deserializeNBT(nbt.getCompound("enchantable"))
     }
 
     override fun write(compound: CompoundNBT): CompoundNBT {
         compound.put("keeper", keeperStackHandler.serializeNBT())
         compound.put("books", bookshelfHandler.serializeNBT())
+        compound.put("enchantable", enchantable.serializeNBT())
         return super.write(compound)
     }
 }
