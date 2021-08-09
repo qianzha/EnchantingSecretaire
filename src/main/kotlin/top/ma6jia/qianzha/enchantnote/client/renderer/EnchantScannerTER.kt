@@ -84,6 +84,25 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
                     itemModel
                 )
             }
+            // TODO render enchanting options
+//            val player: PlayerEntity? = tileEntityIn.world!!.getClosestPlayer(
+//                tileEntityIn.pos.x + 0.5,
+//                tileEntityIn.pos.y + 0.5,
+//                tileEntityIn.pos.z + 0.5,
+//                3.0,
+//                false
+//            )
+//
+//            matrixStackIn.pop()
+//            matrixStackIn.push()
+//
+//            matrixStackIn.translate(0.0, 1.0, 0.0)
+//            matrixStackIn.rotate(Quaternion(0f, f - 90, 180f, true))
+//            matrixStackIn.scale(0.0125f, 0.0125f, 0.0125f)
+//
+//            if(player != null && player.heldItemMainhand.item === Items.STICK) {
+//                renderEnchantOptions(tileEntityIn, matrixStackIn, bufferIn, combinedLightIn)
+//            }
 
             matrixStackIn.pop()
         }
@@ -93,6 +112,29 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
             blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
         )
     }
+
+//    fun renderEnchantOptions(
+//        tile: EnchantScannerTE,
+//        matrixStackIn: MatrixStack,
+//        bufferIn: IRenderTypeBuffer,
+//        combinedLightIn: Int
+//    ) {
+//        val fontRenderer = this.renderDispatcher.getFontRenderer()
+//        val keeper = tile.inventory[0].getStackInSlot(0)
+//            .getCapability(ENoteCapability.ENCHANT_KEEPER_CAPABILITY)
+//
+//        val text = TextComponentUtils.toTextComponent {
+//            "Hello World!"
+//        }
+//
+//        fontRenderer.drawEntityText(
+//            fontRenderer.trimStringToWidth(text, 64)[0],
+//            0f, 0f,
+//            NativeImage.getCombined(0, 0, 0, 0),
+//            false, matrixStackIn.last.matrix, bufferIn,
+//            false, 0, combinedLightIn
+//        )
+//    }
 
     fun renderBookshelfInv(
         matrixStackIn: MatrixStack,
@@ -137,9 +179,9 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
             Direction.EAST ->
                 matrixStackIn.translate(0.75, 0.5625, 0.6875)
             Direction.SOUTH ->
-                matrixStackIn.translate(0.25, 0.5625, 0.75)
+                matrixStackIn.translate(0.3125, 0.5625, 0.75)
             Direction.WEST ->
-                matrixStackIn.translate(0.25, 0.5625, 0.25)
+                matrixStackIn.translate(0.25, 0.5625, 0.3125)
         }
 
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-yDegree))

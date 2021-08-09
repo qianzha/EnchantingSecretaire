@@ -13,7 +13,6 @@ import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY
-import net.minecraftforge.items.ItemHandlerHelper
 import net.minecraftforge.items.ItemStackHandler
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
 import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_CAPABILITY
@@ -29,38 +28,52 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         }
     }
 
-    private val bookshelfHandler = object : ItemStackHandler(1) {
+    private val bookshelfHandler = object : ItemStackHandler(2) {
         override fun isItemValid(slot: Int, stack: ItemStack): Boolean =
-            stack.item === Items.BOOK
+            slot == 0 && stack.item === Items.ENCHANTED_BOOK
 
+        /**
+         * 0号槽中继放附魔书，1号槽转出普通书
+         * 原本不中继直接变书，因原版漏斗逻辑，有普通书时，附魔书无法塞入
+         */
         override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
-            // 只接受附魔书，当 keeperStack 为空时拒绝接收
+            if (slot != 0) return stack
+            // 没有 keeper 拒收，普通书槽满拒收
             val note = keeperStackHandler.getStackInSlot(0)
             val keeperOpt = note.getCapability(ENCHANT_KEEPER_CAPABILITY)
-            if (note.isEmpty || !keeperOpt.isPresent || stack.item !== Items.ENCHANTED_BOOK)
+            val transStack = getStackInSlot(1)
+            if (note.isEmpty || !keeperOpt.isPresent || transStack.count >= transStack.maxStackSize)
                 return stack
+            return super.insertItem(slot, stack, simulate)
+        }
 
-            // 将附魔书转为普通书交由超类存放，非 simulate 则将存放成功数量的附魔书信息存入 enchant_keeper，等级超过存储上限直接丢弃
-            val bookStack = ItemStack(Items.BOOK, stack.count)
-            val bookInsertResult = super.insertItem(slot, bookStack, simulate)
-            val num = (stack.count - bookInsertResult.count).toUInt()
-            if (!simulate && num != 0u) {
-                val maxLevelI = UInt.MAX_VALUE / num
-                keeperOpt.ifPresent { keeper ->
-                    EnchantmentHelper.getEnchantments(stack).forEach { (enchantment, level) ->
+        private fun tryGetEnchantedBook() {
+            val enchantedBook = getStackInSlot(0)
+            if (enchantedBook.isEmpty) return
+
+            // 将附魔书转为普通书，将存放成功数量的附魔书信息存入 enchant_keeper，等级超过存储上限直接丢弃
+            val normalBook = getStackInSlot(1)
+            if (normalBook.isEmpty) {
+                stacks[1] = ItemStack(Items.BOOK, enchantedBook.count)
+            } else {
+                stacks[1].grow(enchantedBook.count)
+            }
+            stacks[0] = ItemStack.EMPTY
+
+            val num = enchantedBook.count.toUInt()
+            val maxLevelI = UInt.MAX_VALUE / num
+            keeperStackHandler.getStackInSlot(0)
+                .getCapability(ENCHANT_KEEPER_CAPABILITY)
+                .ifPresent { keeper ->
+                    EnchantmentHelper.getEnchantments(enchantedBook).forEach { (enchantment, level) ->
                         val levelI = 1u shl level
                         keeper.insert(enchantment, if (levelI > maxLevelI) UInt.MAX_VALUE else levelI * num)
                     }
                 }
-            }
-
-            return if (bookInsertResult.isEmpty) ItemStack.EMPTY else ItemHandlerHelper.copyStackWithSize(
-                stack,
-                bookInsertResult.count
-            )
         }
 
         override fun onContentsChanged(slot: Int) {
+            if (slot == 0) tryGetEnchantedBook()
             super.onContentsChanged(slot)
             checkBookshelfInv()
         }
@@ -111,7 +124,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     fun checkBookshelfInv() {
         val newState = blockState.with(
             EnchantScannerBlock.BOOKSHELF_INV,
-            minOf(bookshelfHandler.getStackInSlot(0).stack.count / 10, 6)
+            minOf(bookshelfHandler.getStackInSlot(1).stack.count / 10, 6)
         )
         world!!.setBlockState(pos, newState)
     }

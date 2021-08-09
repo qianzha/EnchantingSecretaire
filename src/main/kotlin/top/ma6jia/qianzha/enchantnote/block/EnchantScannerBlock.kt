@@ -2,14 +2,12 @@ package top.ma6jia.qianzha.enchantnote.block
 
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
-import net.minecraft.block.material.MaterialColor
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.state.BooleanProperty
 import net.minecraft.state.DirectionProperty
 import net.minecraft.state.IntegerProperty
 import net.minecraft.state.StateContainer
-import net.minecraft.state.properties.BlockStateProperties
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.Direction
@@ -20,14 +18,9 @@ import net.minecraft.util.math.shapes.IBooleanFunction
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.Explosion
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
-import top.ma6jia.qianzha.enchantnote.EnchantNote
-import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
-import java.awt.print.Book
 
 
 class EnchantScannerBlock() : Block(
@@ -92,7 +85,7 @@ class EnchantScannerBlock() : Block(
         pos: BlockPos,
         context: ISelectionContext
     ): VoxelShape {
-        return when(state.get(FACING)) {
+        return when (state.get(FACING)) {
             Direction.EAST -> EAST_SHAPE
             Direction.SOUTH -> SOUTH_SHAPE
             Direction.WEST -> WEST_SHAPE
@@ -119,6 +112,8 @@ class EnchantScannerBlock() : Block(
     }
 
     override fun onBlockClicked(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity) {
+        if (worldIn == null || worldIn.isRemote)
+            super.onBlockClicked(state, worldIn, pos, player)
         val tileEntity = worldIn.getTileEntity(pos)
         if (tileEntity is EnchantScannerTE) {
             val inv = tileEntity.inventory
@@ -140,6 +135,8 @@ class EnchantScannerBlock() : Block(
         handIn: Hand,
         hit: BlockRayTraceResult
     ): ActionResultType {
+        if (worldIn == null || worldIn.isRemote)
+            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit)
         val tileEntity = worldIn.getTileEntity(pos)
         val held = player.getHeldItem(handIn)
         if (!held.isEmpty && tileEntity is EnchantScannerTE) {
