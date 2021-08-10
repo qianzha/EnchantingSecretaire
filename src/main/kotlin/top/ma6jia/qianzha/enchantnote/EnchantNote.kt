@@ -8,8 +8,6 @@ import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import thedarkcolour.kotlinforforge.forge.runWhenOn
@@ -19,15 +17,18 @@ import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeperProvider
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 import top.ma6jia.qianzha.enchantnote.client.ClientHandler
 import top.ma6jia.qianzha.enchantnote.item.ENoteItems
+import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
 import top.ma6jia.qianzha.enchantnote.tileentity.ENoteTileEntities
+import top.ma6jia.qianzha.enchantnote.utils.Log4j
+import top.ma6jia.qianzha.enchantnote.utils.Log4j.Companion.log
 
 @Mod(EnchantNote.MODID)
+@Log4j
 object EnchantNote {
     const val MODID = "enchantnote"
-    val LOGGER: Logger = LogManager.getLogger()
 
     init {
-        LOGGER.info("Hello Init")
+        log.info("Hello Init")
 
         MOD_BUS.addListener(EnchantNote::onSetUpEvent)
         FORGE_BUS.addListener(EnchantNote::attachCap)
@@ -47,6 +48,7 @@ object EnchantNote {
                 IEnchantKeeper.Storage,
                 ::EnchantKeeper
             )
+            ENoteNetwork.register()
         }
     }
 

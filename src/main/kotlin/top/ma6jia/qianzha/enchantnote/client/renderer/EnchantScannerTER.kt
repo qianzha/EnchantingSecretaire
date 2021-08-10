@@ -8,25 +8,17 @@ import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.model.BookModel
 import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.texture.NativeImage
 import net.minecraft.client.renderer.tileentity.EnchantmentTableTileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.container.PlayerContainer
-import net.minecraft.item.Items
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.math.vector.Quaternion
 import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.util.text.TextComponent
-import net.minecraft.util.text.TextComponentUtils
-import net.minecraft.util.text.TextPropertiesManager
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import top.ma6jia.qianzha.enchantnote.EnchantNote
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
-import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
 @OnlyIn(Dist.CLIENT)
@@ -45,13 +37,14 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
     ) {
         val blockState = tileEntityIn.blockState
         val facing = blockState.get(LecternBlock.FACING)
+        matrixStackIn.push()
+        matrixStackIn.translate(0.5, 1.0625, 0.5)
+        val f = facing.rotateY().horizontalAngle
+        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-f))
+        matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(67.5f))
+        matrixStackIn.translate(0.0, -0.125, 0.0)
+        // Render Keeper
         if (blockState.get(EnchantScannerBlock.HAS_KEEPER)) {
-            matrixStackIn.push()
-            matrixStackIn.translate(0.5, 1.0625, 0.5)
-            val f = facing.rotateY().horizontalAngle
-            matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-f))
-            matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(67.5f))
-            matrixStackIn.translate(0.0, -0.125, 0.0)
             bookModel.setBookState(0.0f, 0.1f, 0.9f, 1.2f)
             val iverTexBuilder =
                 EnchantmentTableTileEntityRenderer.TEXTURE_BOOK.getBuffer(bufferIn, RenderType::getEntitySolid)
@@ -65,78 +58,35 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
                 1.0f,
                 1.0f
             )
-
-            val enchantable = tileEntityIn.inventory[2].getStackInSlot(0)
-            if (!enchantable.isEmpty) {
-                matrixStackIn.translate(0.1875, 0.0, 0.0)
-                matrixStackIn.scale(0.5f, 0.5f, 0.5f)
-                matrixStackIn.rotate(Quaternion(0f, 270f, 0f, true))
-                val itemRender = Minecraft.getInstance().itemRenderer
-                val itemModel = itemRender.getItemModelWithOverrides(enchantable, tileEntityIn.world, null)
-                itemRender.renderItem(
-                    enchantable,
-                    ItemCameraTransforms.TransformType.FIXED,
-                    true,
-                    matrixStackIn,
-                    bufferIn,
-                    combinedLightIn,
-                    combinedOverlayIn,
-                    itemModel
-                )
-            }
-            // TODO render enchanting options
-//            val player: PlayerEntity? = tileEntityIn.world!!.getClosestPlayer(
-//                tileEntityIn.pos.x + 0.5,
-//                tileEntityIn.pos.y + 0.5,
-//                tileEntityIn.pos.z + 0.5,
-//                3.0,
-//                false
-//            )
-//
-//            matrixStackIn.pop()
-//            matrixStackIn.push()
-//
-//            matrixStackIn.translate(0.0, 1.0, 0.0)
-//            matrixStackIn.rotate(Quaternion(0f, f - 90, 180f, true))
-//            matrixStackIn.scale(0.0125f, 0.0125f, 0.0125f)
-//
-//            if(player != null && player.heldItemMainhand.item === Items.STICK) {
-//                renderEnchantOptions(tileEntityIn, matrixStackIn, bufferIn, combinedLightIn)
-//            }
-
-            matrixStackIn.pop()
         }
-
+        // Render Enchantable Item
+        val enchantable = tileEntityIn.getEnchantable()
+        if (!enchantable.isEmpty) {
+            matrixStackIn.translate(0.1875, 0.0, 0.0)
+            matrixStackIn.scale(0.5f, 0.5f, 0.5f)
+            matrixStackIn.rotate(Quaternion(0f, 270f, 0f, true))
+            val itemRender = Minecraft.getInstance().itemRenderer
+            val itemModel = itemRender.getItemModelWithOverrides(enchantable, tileEntityIn.world, null)
+            itemRender.renderItem(
+                enchantable,
+                ItemCameraTransforms.TransformType.FIXED,
+                true,
+                matrixStackIn,
+                bufferIn,
+                combinedLightIn,
+                combinedOverlayIn,
+                itemModel
+            )
+        }
+        matrixStackIn.pop()
+        // Render Bookshelf
         renderBookshelfInv(
             matrixStackIn, bufferIn, facing,
             blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
         )
     }
 
-//    fun renderEnchantOptions(
-//        tile: EnchantScannerTE,
-//        matrixStackIn: MatrixStack,
-//        bufferIn: IRenderTypeBuffer,
-//        combinedLightIn: Int
-//    ) {
-//        val fontRenderer = this.renderDispatcher.getFontRenderer()
-//        val keeper = tile.inventory[0].getStackInSlot(0)
-//            .getCapability(ENoteCapability.ENCHANT_KEEPER_CAPABILITY)
-//
-//        val text = TextComponentUtils.toTextComponent {
-//            "Hello World!"
-//        }
-//
-//        fontRenderer.drawEntityText(
-//            fontRenderer.trimStringToWidth(text, 64)[0],
-//            0f, 0f,
-//            NativeImage.getCombined(0, 0, 0, 0),
-//            false, matrixStackIn.last.matrix, bufferIn,
-//            false, 0, combinedLightIn
-//        )
-//    }
-
-    fun renderBookshelfInv(
+    private fun renderBookshelfInv(
         matrixStackIn: MatrixStack,
         bufferIn: IRenderTypeBuffer,
         facing: Direction,

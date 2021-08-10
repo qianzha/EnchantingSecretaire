@@ -2,8 +2,6 @@ package top.ma6jia.qianzha.enchantnote.item
 
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraftforge.common.capabilities.CapabilityProvider
 import net.minecraftforge.registries.ForgeRegistries.ITEMS
 import thedarkcolour.kotlinforforge.forge.KDeferredRegister
 import top.ma6jia.qianzha.enchantnote.EnchantNote.MODID
@@ -13,7 +11,7 @@ object ENoteItems {
     val REGISTRY = KDeferredRegister(ITEMS, MODID)
 
     val ENCHANT_NOTE by REGISTRY.registerObject("enchant_note") {
-        Item(Item.Properties().maxStackSize(1).group(ENoteGroup))
+        EnchantNoteItem(Item.Properties().maxStackSize(1).group(ENoteGroup))
     }
 
     val ENCHANT_SCANNER by REGISTRY.registerObject("enchant_scanner") {

@@ -118,7 +118,7 @@ class EnchantScannerBlock() : Block(
         if (tileEntity is EnchantScannerTE) {
             val inv = tileEntity.inventory
             for (i in (inv.size - 1) downTo 0) {
-                val stack = inv[i].extractItem(0, 64, false)
+                val stack = inv[i].extractItem(inv[i].slots - 1, 64, false)
                 if (!stack.isEmpty) {
                     spawnAsEntity(worldIn, pos.up(), stack)
                     return

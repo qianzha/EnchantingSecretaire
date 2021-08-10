@@ -112,11 +112,13 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         enchantable.setStackInSlot(0, ItemStack.read(tag!!.getCompound("enchantable")))
     }
 
+    fun hasKeeper() : Boolean = !keeperStackHandler.getStackInSlot(0).isEmpty
+    fun getEnchantable() : ItemStack = enchantable.getStackInSlot(0)
 
     fun checkHasKeeper() {
         val newState = blockState.with(
             EnchantScannerBlock.HAS_KEEPER,
-            !keeperStackHandler.getStackInSlot(0).isEmpty
+            hasKeeper()
         )
         world!!.setBlockState(pos, newState)
     }
