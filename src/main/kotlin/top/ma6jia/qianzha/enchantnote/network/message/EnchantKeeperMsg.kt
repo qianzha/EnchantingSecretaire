@@ -39,7 +39,7 @@ data class EnchantKeeperMsg(
             DistExecutor.unsafeCallWhenOn(Dist.CLIENT) {
                 Callable {
                     log.debug("msg handle at client: {}", Minecraft.getInstance().world?.isRemote)
-                    Minecraft.getInstance().displayGuiScreen(ReadBookScreen(keeper.bookInfo))
+                    Minecraft.getInstance().displayGuiScreen(ReadBookScreen(keeper))
                 }
             }
         }

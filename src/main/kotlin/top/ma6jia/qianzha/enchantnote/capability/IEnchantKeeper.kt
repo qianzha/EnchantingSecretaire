@@ -1,22 +1,20 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
 import net.minecraft.client.gui.screen.ReadBookScreen
-import net.minecraft.client.resources.I18n
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.INBT
 import net.minecraft.nbt.IntNBT
 import net.minecraft.util.Direction
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextProperties
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistries
 
-interface IEnchantKeeper {
+interface IEnchantKeeper: ReadBookScreen.IBookInfo {
     /**
      * @param enchantment
      * @param levelI level to multiply
-     * @return level out of limit. Learn detail at [getLevel]
+     * @return level out of limit. Learn detail at [getLevelI]
      */
     fun insert(enchantment: Enchantment, levelI: UInt) : UInt
 
@@ -30,21 +28,6 @@ interface IEnchantKeeper {
 
     fun entities(): MutableSet<MutableMap.MutableEntry<Enchantment, UInt>>
     fun keys(): MutableSet<Enchantment>
-
-    val bookInfo: ReadBookScreen.IBookInfo
-        get() = object : ReadBookScreen.IBookInfo {
-            val pages : List<String> = entities().map {
-                """
-${I18n.format(it.key.name)}:
-    ${it.value} / ${UInt.MAX_VALUE}
-                """.trimIndent()
-            }
-
-            override fun getPageCount(): Int = pages.size
-
-            override fun func_230456_a_(p_230456_1_: Int): ITextProperties =
-                ITextProperties.func_240652_a_(this.pages[p_230456_1_]);
-        }
 
     object Storage : Capability.IStorage<IEnchantKeeper> {
         override fun writeNBT(
