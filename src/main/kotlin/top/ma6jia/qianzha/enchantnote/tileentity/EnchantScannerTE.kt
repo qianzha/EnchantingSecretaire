@@ -1,7 +1,10 @@
 package top.ma6jia.qianzha.enchantnote.tileentity
 
 import net.minecraft.block.BlockState
+import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
@@ -9,13 +12,18 @@ import net.minecraft.network.NetworkManager
 import net.minecraft.network.play.server.SUpdateTileEntityPacket
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.Direction
+import net.minecraft.util.ResourceLocation
+import net.minecraft.util.math.MathHelper
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY
 import net.minecraftforge.items.ItemStackHandler
+import net.minecraftforge.registries.ForgeRegistries
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
 import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_CAPABILITY
+import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
+import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
 
 class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     private val keeperStackHandler = object : ItemStackHandler(1) {
@@ -66,7 +74,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
                 .getCapability(ENCHANT_KEEPER_CAPABILITY)
                 .ifPresent { keeper ->
                     EnchantmentHelper.getEnchantments(enchantedBook).forEach { (enchantment, level) ->
-                        val levelI = 1u shl level
+                        val levelI = 1u shl (level - 1)
                         keeper.insert(enchantment, if (levelI > maxLevelI) UInt.MAX_VALUE else levelI * num)
                     }
                 }
@@ -88,37 +96,61 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
             super.onContentsChanged(slot)
             world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
         }
+
+        override fun getSlotLimit(slot: Int): Int = 1
     }
 
     val inventory = listOf(keeperStackHandler, bookshelfHandler, enchantable)
-
+    var selected : Enchantment? = null
+        set(value) {
+            field = value
+            world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
+        }
+    fun setSelected(registryName: String) {
+        this.selected = ForgeRegistries.ENCHANTMENTS
+            .getValue(ResourceLocation(registryName))
+        this.selectedLevel = selected?.minLevel ?: 1
+        world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
+    }
+    var selectedLevel: Int = 1
+        set(value) {
+            this.selected?.let {
+                field = MathHelper.clamp(value, it.minLevel, it.maxLevel)
+            }
+            world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
+        }
     override fun getUpdatePacket(): SUpdateTileEntityPacket {
         return SUpdateTileEntityPacket(pos, 1, updateTag)
     }
 
     override fun onDataPacket(net: NetworkManager?, pkt: SUpdateTileEntityPacket?) {
         super.onDataPacket(net, pkt)
-        handleUpdateTag(world!!.getBlockState(pkt!!.pos), pkt!!.nbtCompound)
+        handleUpdateTag(world!!.getBlockState(pkt!!.pos), pkt.nbtCompound)
     }
 
     override fun getUpdateTag(): CompoundNBT {
         val nbt = super.getUpdateTag()
         nbt.put("enchantable", enchantable.getStackInSlot(0).write(CompoundNBT()))
+        nbt.putString("selected", selected?.registryName.toString())
+        nbt.putInt("level", selectedLevel)
         return nbt
     }
 
     override fun handleUpdateTag(state: BlockState?, tag: CompoundNBT?) {
         super.handleUpdateTag(state, tag)
         enchantable.setStackInSlot(0, ItemStack.read(tag!!.getCompound("enchantable")))
+        setSelected(tag.getString("selected"))
+        selectedLevel = tag.getInt("level")
     }
 
-    fun hasKeeper() : Boolean = !keeperStackHandler.getStackInSlot(0).isEmpty
+    fun getKeeper() : LazyOptional<IEnchantKeeper> =
+        keeperStackHandler.getStackInSlot(0).getCapability(ENCHANT_KEEPER_CAPABILITY)
     fun getEnchantable() : ItemStack = enchantable.getStackInSlot(0)
 
     fun checkHasKeeper() {
         val newState = blockState.with(
             EnchantScannerBlock.HAS_KEEPER,
-            hasKeeper()
+            getKeeper().isPresent
         )
         world!!.setBlockState(pos, newState)
     }
@@ -151,5 +183,27 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         compound.put("books", bookshelfHandler.serializeNBT())
         compound.put("enchantable", enchantable.serializeNBT())
         return super.write(compound)
+    }
+
+    fun openNotebookScreen(player: PlayerEntity) {
+        if (player is ServerPlayerEntity) {
+            getKeeper().ifPresent {
+                ENoteNetwork.openKeeper(it, player, pos)
+            }
+        }
+    }
+
+    fun enchant() : Boolean {
+        val stack = getEnchantable()
+        if(stack.isEnchanted) return false
+        this.selected?.let { ecm ->
+            getKeeper().ifPresent {  keeper ->
+                val res = keeper.enchant(stack, ecm, selectedLevel)
+                if(!res.isEmpty) {
+                    enchantable.setStackInSlot(0, res)
+                }
+            }
+        }
+        return getEnchantable().isEnchanted
     }
 }

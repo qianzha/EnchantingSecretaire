@@ -4,14 +4,14 @@ import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItemUseContext
+import net.minecraft.item.Items
+import net.minecraft.particles.ParticleTypes
 import net.minecraft.state.BooleanProperty
 import net.minecraft.state.DirectionProperty
 import net.minecraft.state.IntegerProperty
 import net.minecraft.state.StateContainer
 import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
+import net.minecraft.util.*
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.math.shapes.IBooleanFunction
@@ -20,10 +20,11 @@ import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
 
-class EnchantScannerBlock() : Block(
+class EnchantScannerBlock : Block(
     (
             Properties.create(Material.ANVIL)
                 .hardnessAndResistance(5.0F, 1200.0F)
@@ -112,16 +113,22 @@ class EnchantScannerBlock() : Block(
     }
 
     override fun onBlockClicked(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity) {
-        if (worldIn == null || worldIn.isRemote)
+        @Suppress("DEPRECATION")
+        if (worldIn.isRemote)
             super.onBlockClicked(state, worldIn, pos, player)
         val tileEntity = worldIn.getTileEntity(pos)
         if (tileEntity is EnchantScannerTE) {
-            val inv = tileEntity.inventory
-            for (i in (inv.size - 1) downTo 0) {
-                val stack = inv[i].extractItem(inv[i].slots - 1, 64, false)
-                if (!stack.isEmpty) {
-                    spawnAsEntity(worldIn, pos.up(), stack)
-                    return
+            if (player.heldItemMainhand.item == Items.STICK) {
+                val maxLevel = tileEntity.selected?.maxLevel ?: 1
+                tileEntity.selectedLevel = (tileEntity.selectedLevel % maxLevel) + 1
+            } else {
+                val inv = tileEntity.inventory
+                for (i in (inv.size - 1) downTo 0) {
+                    val stack = inv[i].extractItem(inv[i].slots - 1, 64, false)
+                    if (!stack.isEmpty) {
+                        spawnAsEntity(worldIn, pos.up(), stack)
+                        return
+                    }
                 }
             }
         }
@@ -135,19 +142,54 @@ class EnchantScannerBlock() : Block(
         handIn: Hand,
         hit: BlockRayTraceResult
     ): ActionResultType {
-        if (worldIn == null || worldIn.isRemote)
+        @Suppress("DEPRECATION")
+        if (worldIn.isRemote || handIn == Hand.OFF_HAND)
             return super.onBlockActivated(state, worldIn, pos, player, handIn, hit)
         val tileEntity = worldIn.getTileEntity(pos)
         val held = player.getHeldItem(handIn)
-        if (!held.isEmpty && tileEntity is EnchantScannerTE) {
-            tileEntity.inventory.forEach {
-                val rest = it.insertItem(0, held, false)
-                if (rest.count !== held.count) {
-                    player.setHeldItem(handIn, rest)
-                    return ActionResultType.SUCCESS
+        if (tileEntity is EnchantScannerTE) {
+            if (!held.isEmpty) {
+                if (held.item == Items.STICK) {
+                    if (tileEntity.enchant()) {
+                        worldIn.playSound(
+                            null,
+                            pos,
+                            SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE,
+                            SoundCategory.BLOCKS,
+                            1.0F,
+                            worldIn.rand.nextFloat() * 0.1F + 0.9F
+                        )
+                    }
+                    else {
+                        (worldIn as ServerWorld).spawnParticle(
+                            ParticleTypes.LARGE_SMOKE,
+                            pos.x + 0.5,
+                            pos.y + 0.25,
+                            pos.z + 0.5,
+                            8,
+                            0.5,
+                            0.25,
+                            0.5,
+                            0.0
+                        )
+
+                    }
+                } else {
+                    val stack = held.copy()
+                    stack.count = 1
+                    tileEntity.inventory.forEach {
+                        if (it.insertItem(0, stack, false).isEmpty) {
+                            held.shrink(1)
+                            player.setHeldItem(handIn, held)
+                            return ActionResultType.SUCCESS
+                        }
+                    }
                 }
+            } else {
+                tileEntity.openNotebookScreen(player)
             }
         }
+        @Suppress("DEPRECATION")
         return super.onBlockActivated(state, worldIn, pos, player, handIn, hit)
     }
 

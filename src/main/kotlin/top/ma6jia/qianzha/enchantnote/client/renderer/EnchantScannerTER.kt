@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.entity.model.BookModel
 import net.minecraft.client.renderer.model.ItemCameraTransforms
+import net.minecraft.client.renderer.texture.NativeImage
 import net.minecraft.client.renderer.tileentity.EnchantmentTableTileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
@@ -79,16 +80,42 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
             )
         }
         matrixStackIn.pop()
+
+        //
+        val builder = bufferIn.getBuffer(RenderType.getSolid())
+        matrixStackIn.push()
+        val yDegree = 90 + facing.rotateY().horizontalAngle
+        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-yDegree))
+        matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(180f))
+
+        // Render selected enchantment
+        tileEntityIn.selected?.let { ecm ->
+            matrixStackIn.push()
+            matrixStackIn.translate(0.0, -0.75, 0.0)
+            matrixStackIn.scale(0.01f, 0.01f, 0.01f)
+            val fontRenderer = this.renderDispatcher.getFontRenderer()
+            val text = ecm.getDisplayName(tileEntityIn.selectedLevel)
+            fontRenderer.drawEntityText(
+                fontRenderer.trimStringToWidth(text, 90)[0],
+                0f, 0f,
+                NativeImage.getCombined(0, 0, 0, 0),
+                false, matrixStackIn.last.matrix, bufferIn,
+                false, 255, 255
+            )
+            matrixStackIn.pop()
+        }
+
         // Render Bookshelf
         renderBookshelfInv(
-            matrixStackIn, bufferIn, facing,
+            matrixStackIn, builder, facing,
             blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
         )
+        matrixStackIn.pop()
     }
 
     private fun renderBookshelfInv(
         matrixStackIn: MatrixStack,
-        bufferIn: IRenderTypeBuffer,
+        builder: IVertexBuilder,
         facing: Direction,
         num: Int
     ) {
@@ -99,7 +126,6 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         ).apply(
             ResourceLocation("block/lectern_front")
         )
-        val builder = bufferIn.getBuffer(RenderType.getSolid())
 
         val backMinU = sprite.getInterpolatedU(1.0)
         val backMaxU = sprite.getInterpolatedU(1.0 + num)
@@ -118,24 +144,17 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         val w = 0.0625f * num
 
 
-        val yDegree = 90 + facing.rotateY().horizontalAngle
-
         matrixStackIn.push()
-
-        // 11, 5, 4
         when (facing) {
             Direction.NORTH ->
                 matrixStackIn.translate(0.6875, 0.5625, 0.25)
-            Direction.EAST ->
-                matrixStackIn.translate(0.75, 0.5625, 0.6875)
             Direction.SOUTH ->
                 matrixStackIn.translate(0.3125, 0.5625, 0.75)
             Direction.WEST ->
                 matrixStackIn.translate(0.25, 0.5625, 0.3125)
+            else ->
+                matrixStackIn.translate(0.75, 0.5625, 0.6875)
         }
-
-        matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-yDegree))
-        matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(180f))
 
         add(builder, matrixStackIn, 0f, h, 0f, backMinU, backMaxV)
         add(builder, matrixStackIn, w, h, 0f, backMaxU, backMaxV)

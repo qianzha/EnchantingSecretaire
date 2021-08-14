@@ -2,6 +2,7 @@ package top.ma6jia.qianzha.enchantnote.capability
 
 import net.minecraft.client.gui.screen.ReadBookScreen
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.INBT
 import net.minecraft.nbt.IntNBT
@@ -18,13 +19,19 @@ interface IEnchantKeeper: ReadBookScreen.IBookInfo {
      */
     fun insert(enchantment: Enchantment, levelI: UInt) : UInt
 
+    fun enchant(target: ItemStack, enchantment: Enchantment, level: Int) : ItemStack
+
     /**
      * @param enchantment
      * @return Total level as the number of Level I.
      *  As two enchantments has same level could be combine into next level,
-     *  `level shl 1` is the number of Level II saved.
+     *  `levelI shr 1` is the number of Level II saved.
+     *
+     *  Meanwhile, Level II request 2 of Level I, III request 4, IV request 8, and so on.
      */
     fun getLevelI(enchantment: Enchantment): UInt
+
+    fun numOfLevel(enchantment: Enchantment, level: Int): UInt
 
     fun entities(): MutableSet<MutableMap.MutableEntry<Enchantment, UInt>>
     fun keys(): MutableSet<Enchantment>
@@ -58,4 +65,6 @@ interface IEnchantKeeper: ReadBookScreen.IBookInfo {
         }
     }
 
+    fun getCurrent() : Enchantment?
+    
 }
