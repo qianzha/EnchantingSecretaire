@@ -4,6 +4,7 @@ import net.minecraft.block.*
 import net.minecraft.block.material.Material
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItemUseContext
+import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.state.BooleanProperty
@@ -21,6 +22,7 @@ import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
+import top.ma6jia.qianzha.enchantnote.item.ENoteItems
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
 
@@ -109,6 +111,10 @@ class EnchantScannerBlock : Block(
                 }
             }
         }
+        if(state[HAS_TABLE_CLOTH]) {
+            spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_TABLE_CLOTH, 1))
+        }
+        spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_SCANNER, 1))
         super.onBlockHarvested(worldIn, pos, state, player)
     }
 
@@ -130,6 +136,10 @@ class EnchantScannerBlock : Block(
                         return
                     }
                 }
+                if(state[HAS_TABLE_CLOTH]) {
+                    spawnAsEntity(worldIn, pos.up(), ItemStack(ENoteItems.ENCHANT_TABLE_CLOTH, 1))
+                    worldIn.setBlockState(pos, state.with(HAS_TABLE_CLOTH, false))
+                }
             }
         }
     }
@@ -150,7 +160,7 @@ class EnchantScannerBlock : Block(
         if (tileEntity is EnchantScannerTE) {
             if (!held.isEmpty) {
                 if (held.item == Items.STICK) {
-                    if (tileEntity.enchant()) {
+                    if (state.get(HAS_TABLE_CLOTH) && tileEntity.enchant()) {
                         worldIn.playSound(
                             null,
                             pos,
@@ -174,7 +184,12 @@ class EnchantScannerBlock : Block(
                         )
 
                     }
-                } else {
+                }
+                else if (held.item == ENoteItems.ENCHANT_TABLE_CLOTH) {
+                    worldIn.setBlockState(pos, state.with(HAS_TABLE_CLOTH, true))
+                    held.shrink(1)
+                }
+                else {
                     val stack = held.copy()
                     stack.count = 1
                     tileEntity.inventory.forEach {

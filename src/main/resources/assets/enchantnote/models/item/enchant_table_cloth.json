@@ -1,0 +1,62 @@
+{
+	"credit": "Made with Blockbench",
+	"textures": {
+		"9_side": "enchantnote:block/enchanting_table_cloth_side",
+		"9_top": "enchantnote:block/enchanting_table_cloth"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 5, 16],
+			"rotation": {"angle": 0, "axis": "x", "origin": [8, 0, 8]},
+			"faces": {
+				"north": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "north"},
+				"east": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "east"},
+				"south": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "south"},
+				"west": {"uv": [0, 4, 16, 9], "texture": "#9_side", "cullface": "west"},
+				"up": {"uv": [0, 0, 16, 16], "texture": "#9_top"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 3, 1],
+			"scale": [0.55, 0.55, 0.55]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 3, 1],
+			"scale": [0.55, 0.55, 0.55]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 135, 0],
+			"translation": [1, 3.25, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"translation": [3, 1.25, 0]
+		},
+		"ground": {
+			"translation": [0, 2, 0],
+			"scale": [0.5, 0.5, 0.5]
+		},
+		"gui": {
+			"rotation": [45, 45, 0],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"head": {
+			"translation": [0, 10, 0]
+		},
+		"fixed": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 0, -3.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "enchanting_table",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

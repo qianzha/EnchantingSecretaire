@@ -38,6 +38,8 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
     ) {
         val blockState = tileEntityIn.blockState
         val facing = blockState.get(LecternBlock.FACING)
+        val hasKeeper = blockState[EnchantScannerBlock.HAS_KEEPER]
+        val hasCloth = blockState[EnchantScannerBlock.HAS_TABLE_CLOTH]
         matrixStackIn.push()
         matrixStackIn.translate(0.5, 1.0625, 0.5)
         val f = facing.rotateY().horizontalAngle
@@ -45,7 +47,7 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(67.5f))
         matrixStackIn.translate(0.0, -0.125, 0.0)
         // Render Keeper
-        if (blockState.get(EnchantScannerBlock.HAS_KEEPER)) {
+        if (hasKeeper) {
             bookModel.setBookState(0.0f, 0.1f, 0.9f, 1.2f)
             val iverTexBuilder =
                 EnchantmentTableTileEntityRenderer.TEXTURE_BOOK.getBuffer(bufferIn, RenderType::getEntitySolid)
@@ -89,20 +91,22 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(180f))
 
         // Render selected enchantment
-        tileEntityIn.selected?.let { ecm ->
-            matrixStackIn.push()
-            matrixStackIn.translate(0.0, -0.75, 0.0)
-            matrixStackIn.scale(0.01f, 0.01f, 0.01f)
-            val fontRenderer = this.renderDispatcher.getFontRenderer()
-            val text = ecm.getDisplayName(tileEntityIn.selectedLevel)
-            fontRenderer.drawEntityText(
-                fontRenderer.trimStringToWidth(text, 90)[0],
-                0f, 0f,
-                NativeImage.getCombined(0, 0, 0, 0),
-                false, matrixStackIn.last.matrix, bufferIn,
-                false, 255, 255
-            )
-            matrixStackIn.pop()
+        if (hasKeeper && hasCloth) {
+            tileEntityIn.selected?.let { ecm ->
+                matrixStackIn.push()
+                matrixStackIn.translate(0.0, -0.75, 0.0)
+                matrixStackIn.scale(0.01f, 0.01f, 0.01f)
+                val fontRenderer = this.renderDispatcher.getFontRenderer()
+                val text = ecm.getDisplayName(tileEntityIn.selectedLevel)
+                fontRenderer.drawEntityText(
+                    fontRenderer.trimStringToWidth(text, 90)[0],
+                    0f, 0f,
+                    NativeImage.getCombined(0, 0, 0, 0),
+                    false, matrixStackIn.last.matrix, bufferIn,
+                    false, 255, 255
+                )
+                matrixStackIn.pop()
+            }
         }
 
         // Render Bookshelf

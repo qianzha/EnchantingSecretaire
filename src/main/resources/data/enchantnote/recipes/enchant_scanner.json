@@ -1,0 +1,12 @@
+{
+  "type": "smithing",
+  "base": {
+    "item": "minecraft:lectern"
+  },
+  "addition": {
+    "item": "minecraft:anvil"
+  },
+  "result": {
+    "item": "enchantnote:enchant_scanner"
+  }
+}

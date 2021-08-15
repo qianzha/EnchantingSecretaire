@@ -14,6 +14,10 @@ object ENoteItems {
         EnchantNoteItem(Item.Properties().maxStackSize(1).group(ENoteGroup))
     }
 
+    val ENCHANT_TABLE_CLOTH by REGISTRY.registerObject("enchant_table_cloth") {
+        Item(Item.Properties().group(ENoteGroup))
+    }
+
     val ENCHANT_SCANNER by REGISTRY.registerObject("enchant_scanner") {
         BlockItem(ENoteBlocks.ENCHANT_SCANNER, Item.Properties().group(ENoteGroup))
     }
