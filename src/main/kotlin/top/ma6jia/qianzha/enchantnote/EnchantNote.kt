@@ -30,9 +30,9 @@ object EnchantNote {
     init {
         log.info("Hello Init")
 
-        MOD_BUS.addListener(EnchantNote::onSetUpEvent)
-        FORGE_BUS.addListener(EnchantNote::attachCap)
-        FORGE_BUS.addListener(EnchantNote::onBlockBreak)
+        MOD_BUS.addListener(this::onSetUpEvent)
+        FORGE_BUS.addListener(this::attachCap)
+        FORGE_BUS.addListener(this::onBlockBreak)
 
         ENoteBlocks.REGISTRY.register(MOD_BUS)
         ENoteItems.REGISTRY.register(MOD_BUS)

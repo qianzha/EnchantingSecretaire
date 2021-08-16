@@ -1,15 +1,14 @@
 
 modLoader="kotlinforforge"
 loaderVersion="[1,)"
-license="All rights reserved"
+license="GNU GPLv3"
 [[mods]]
 modId="enchantnote"
 version="0.1"
-displayName="Enchantment Note"
-logoFile="examplemod.png"
-credits="Thanks for this example mod goes to Java"
+displayName="Enchanting Secretaire"
 authors="qianzha"
 description='''
+Provide a notebook to recording enchantments.
 将成堆的附魔书记录于一本厚重笔记。
 '''
 [[dependencies.enchantnote]]
