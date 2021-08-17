@@ -84,11 +84,27 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
         matrixStackIn.pop()
 
         //
-        val builder = bufferIn.getBuffer(RenderType.getSolid())
         matrixStackIn.push()
+        when (facing) {
+            Direction.NORTH ->
+                matrixStackIn.translate(0.6875, 0.5625, 0.25)
+            Direction.SOUTH ->
+                matrixStackIn.translate(0.3125, 0.5625, 0.75)
+            Direction.WEST ->
+                matrixStackIn.translate(0.25, 0.5625, 0.3125)
+            else ->
+                matrixStackIn.translate(0.75, 0.5625, 0.6875)
+        }
         val yDegree = 90 + facing.rotateY().horizontalAngle
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(-yDegree))
         matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(180f))
+
+        // Render Bookshelf
+        val builder = bufferIn.getBuffer(RenderType.getSolid())
+        renderBookshelfInv(
+            matrixStackIn, builder,
+            blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
+        )
 
         // Render selected enchantment
         if (hasKeeper && hasCloth) {
@@ -108,19 +124,13 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
                 matrixStackIn.pop()
             }
         }
-
-        // Render Bookshelf
-        renderBookshelfInv(
-            matrixStackIn, builder, facing,
-            blockState.get(EnchantScannerBlock.BOOKSHELF_INV)
-        )
         matrixStackIn.pop()
+
     }
 
     private fun renderBookshelfInv(
         matrixStackIn: MatrixStack,
         builder: IVertexBuilder,
-        facing: Direction,
         num: Int
     ) {
         if (num <= 0) return
@@ -149,16 +159,6 @@ class EnchantScannerTER(rendererDispatcherIn: TileEntityRendererDispatcher) :
 
 
         matrixStackIn.push()
-        when (facing) {
-            Direction.NORTH ->
-                matrixStackIn.translate(0.6875, 0.5625, 0.25)
-            Direction.SOUTH ->
-                matrixStackIn.translate(0.3125, 0.5625, 0.75)
-            Direction.WEST ->
-                matrixStackIn.translate(0.25, 0.5625, 0.3125)
-            else ->
-                matrixStackIn.translate(0.75, 0.5625, 0.6875)
-        }
 
         add(builder, matrixStackIn, 0f, h, 0f, backMinU, backMaxV)
         add(builder, matrixStackIn, w, h, 0f, backMaxU, backMaxV)
