@@ -5,6 +5,7 @@ import net.minecraft.client.resources.I18n
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.util.text.ITextProperties
 import net.minecraft.util.text.TextComponent
+import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
@@ -27,10 +28,15 @@ class KeeperBookInfoHandler(private val keeper: IEnchantKeeper): ReadBookScreen.
                 val levelOfi = levelI.toDouble() / (1 shl i)
                 if(levelOfi >= 1) {
                     val iLevel = I18n.format("enchantment.level.${i + 1}")
-                    page.appendString(":\n $levelOfi of Level $iLevel")
+                    page.appendSibling(TranslationTextComponent(
+                        "gui.keeper.enchant.level_num", levelOfi, iLevel
+                    ))
                 }
             }
-            page.appendString("\n  Limit: ${UInt.MAX_VALUE shr (ecm.maxLevel - 1)} of Level $maxLevel")
+            page.appendSibling(TranslationTextComponent(
+                "gui.keeper.enchant.max_limit",
+                UInt.MAX_VALUE shr (ecm.maxLevel - 1), maxLevel
+            ))
         } ?: ITextProperties.field_240651_c_
     }
 }
