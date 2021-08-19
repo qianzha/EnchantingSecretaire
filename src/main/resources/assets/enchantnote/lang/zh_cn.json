@@ -3,7 +3,6 @@
   "block.enchantnote.enchant_scanner": "附魔记录台",
   "item.enchantnote.enchant_note": "附魔笔记",
   "item.enchantnote.enchant_table_cloth": "附魔桌布",
-  "tooltip.enchantnote.keeper.num": "已记录附魔类型: %d",
   "info.enchantnote.enchant_scanner": "用于将附魔书转为普通书，并将附魔信息存于笔记中。\n桌台可同时放置附魔笔记与未附魔装备或书。当放有附魔笔记时，可放入附魔书记录信息并转化为书。\n空手右击可打开桌台上的附魔笔记。\n上述物品可以手动右击放入，左击可依次取出，也可以通过自动物流——从顶部传输笔记、从侧面和底部输入输出附魔书和书。",
   "info.enchantnote.enchant_table_cloth": "手持右击放置于附魔记录台上，用于取出附魔笔记中记录的附魔。\n当放置有附魔桌布和附魔笔记时，空手右击打开附魔笔记，从已记录的附魔中，选取目标附魔的页面，并点击底部的“完成”。\n手持木棍左击选取目标附魔等级。当桌台放置有未附魔装备或书时，手持木棍右击进行附魔——成功将播放附魔音效，失败则出现黑烟粒子效果。",
   "gui.keeper.enchant.level_num": "\n %d 倍等级 %s",
