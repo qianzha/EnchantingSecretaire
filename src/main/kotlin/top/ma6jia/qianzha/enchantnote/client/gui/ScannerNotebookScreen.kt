@@ -7,7 +7,6 @@ import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 import top.ma6jia.qianzha.enchantnote.client.utils.KeeperBookInfoHandler
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
 import top.ma6jia.qianzha.enchantnote.network.message.ScannerSelectMsg

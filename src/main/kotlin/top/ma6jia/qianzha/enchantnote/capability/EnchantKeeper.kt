@@ -1,11 +1,8 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
-import net.minecraft.client.resources.I18n
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.util.text.ITextProperties
-import net.minecraft.util.text.TextComponent
 
 class EnchantKeeper : IEnchantKeeper {
     private val hold = linkedMapOf<Enchantment, UInt>()

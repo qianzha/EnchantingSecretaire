@@ -1,6 +1,5 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
-import net.minecraft.client.gui.screen.ReadBookScreen
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT

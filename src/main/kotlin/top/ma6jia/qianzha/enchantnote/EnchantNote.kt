@@ -2,12 +2,9 @@ package top.ma6jia.qianzha.enchantnote
 
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.event.AttachCapabilitiesEvent
-import net.minecraftforge.event.entity.player.ItemTooltipEvent
 import net.minecraftforge.event.world.BlockEvent
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
@@ -15,7 +12,6 @@ import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import thedarkcolour.kotlinforforge.forge.runWhenOn
 import top.ma6jia.qianzha.enchantnote.block.ENoteBlocks
-import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability
 import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeper
 import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeperProvider
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
