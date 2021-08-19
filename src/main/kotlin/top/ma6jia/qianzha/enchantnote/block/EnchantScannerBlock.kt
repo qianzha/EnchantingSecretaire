@@ -152,11 +152,16 @@ class EnchantScannerBlock : Block(
         handIn: Hand,
         hit: BlockRayTraceResult
     ): ActionResultType {
-        @Suppress("DEPRECATION")
-        if (worldIn.isRemote || handIn == Hand.OFF_HAND)
-            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit)
         val tileEntity = worldIn.getTileEntity(pos)
         val held = player.getHeldItem(handIn)
+        if (worldIn.isRemote && tileEntity is EnchantScannerTE) {
+            if(tileEntity.inventory[2].insertItem(0, held, true).isEmpty)
+                return ActionResultType.SUCCESS
+        }
+        @Suppress("DEPRECATION")
+        if (worldIn.isRemote || handIn == Hand.OFF_HAND) {
+            return super.onBlockActivated(state, worldIn, pos, player, handIn, hit)
+        }
         if (tileEntity is EnchantScannerTE) {
             if (!held.isEmpty) {
                 if (held.item == Items.STICK) {
