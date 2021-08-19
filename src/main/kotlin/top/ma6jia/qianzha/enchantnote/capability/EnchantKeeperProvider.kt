@@ -9,8 +9,10 @@ import net.minecraftforge.common.util.LazyOptional
 
 class EnchantKeeperProvider : ICapabilitySerializable<CompoundNBT> {
     companion object {
-        private val CAP = ENoteCapability.ENCHANT_KEEPER_CAPABILITY
-        private val STORAGE = CAP.storage
+        private val CAP
+            get() = ENoteCapability.ENCHANT_KEEPER_CAPABILITY
+        private val STORAGE
+            get() = CAP.storage
     }
     private val keeper = EnchantKeeper()
 

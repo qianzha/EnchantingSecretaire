@@ -11,7 +11,7 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.registries.ForgeRegistries
 
-interface IEnchantKeeper: ReadBookScreen.IBookInfo {
+interface IEnchantKeeper {
     /**
      * @param enchantment
      * @param levelI level to multiply
@@ -32,6 +32,7 @@ interface IEnchantKeeper: ReadBookScreen.IBookInfo {
     fun getLevelI(enchantment: Enchantment): UInt
 
     fun numOfLevel(enchantment: Enchantment, level: Int): UInt
+    fun numOfEnchantments(): Int
 
     fun entities(): MutableSet<MutableMap.MutableEntry<Enchantment, UInt>>
     fun keys(): MutableSet<Enchantment>
@@ -64,7 +65,5 @@ interface IEnchantKeeper: ReadBookScreen.IBookInfo {
             }
         }
     }
-
-    fun getCurrent() : Enchantment?
     
 }

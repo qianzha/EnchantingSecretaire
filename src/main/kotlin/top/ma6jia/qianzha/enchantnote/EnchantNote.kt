@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.entity.player.ItemTooltipEvent
@@ -36,7 +37,6 @@ object EnchantNote {
         MOD_BUS.addListener(this::onSetUpEvent)
         FORGE_BUS.addListener(this::attachCap)
         FORGE_BUS.addListener(this::onBlockBreak)
-        FORGE_BUS.addListener(this::onTooltip)
 
         ENoteBlocks.REGISTRY.register(MOD_BUS)
         ENoteItems.REGISTRY.register(MOD_BUS)
@@ -73,12 +73,4 @@ object EnchantNote {
         }
     }
 
-    private fun onTooltip(event: ItemTooltipEvent) {
-        event.itemStack.getCapability(ENoteCapability.ENCHANT_KEEPER_CAPABILITY)
-            .ifPresent {
-                event.toolTip.add(TranslationTextComponent(
-                    "tooltip.enchantnote.keeper.num", it.pageCount)
-                )
-            }
-    }
 }

@@ -10,6 +10,7 @@ import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_
 import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeper
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 import top.ma6jia.qianzha.enchantnote.client.gui.ScannerNotebookScreen
+import top.ma6jia.qianzha.enchantnote.client.utils.KeeperBookInfoHandler
 import java.util.concurrent.Callable
 import java.util.function.Supplier
 
@@ -41,7 +42,9 @@ data class EnchantKeeperMsg(
         ctx.get().enqueueWork {
             DistExecutor.unsafeCallWhenOn(Dist.CLIENT) {
                 Callable {
-                    Minecraft.getInstance().displayGuiScreen(ScannerNotebookScreen(keeper, pos))
+                    Minecraft.getInstance().displayGuiScreen(
+                        ScannerNotebookScreen(KeeperBookInfoHandler(keeper), pos)
+                    )
                 }
             }
         }

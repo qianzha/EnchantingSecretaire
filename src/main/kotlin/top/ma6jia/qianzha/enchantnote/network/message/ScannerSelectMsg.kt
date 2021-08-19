@@ -16,15 +16,16 @@ data class ScannerSelectMsg(
         fun decode(buf: PacketBuffer) : ScannerSelectMsg =
             ScannerSelectMsg(
                 buf.readBlockPos(),
-                buf.readString()
+                buf.readString(buf.readInt())
             )
     }
     fun encode(buf: PacketBuffer) {
         buf.writeBlockPos(pos)
+        buf.writeInt(enchantment.length)
         buf.writeString(enchantment)
     }
 
-        fun handle(ctx: Supplier<NetworkEvent.Context>) {
+    fun handle(ctx: Supplier<NetworkEvent.Context>) {
         ctx.get().let {
             it.enqueueWork {
                 val world = it.sender?.world

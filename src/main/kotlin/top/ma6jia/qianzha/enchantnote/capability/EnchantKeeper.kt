@@ -46,29 +46,10 @@ class EnchantKeeper : IEnchantKeeper {
     override fun numOfLevel(enchantment: Enchantment, level: Int): UInt =
         getLevelI(enchantment) shr (level - 1)
 
+    override fun numOfEnchantments(): Int = hold.size
+
     override fun entities() = hold.entries
 
     override fun keys() = hold.keys
 
-    override fun getPageCount(): Int = hold.size
-
-    private var currentEcm : Enchantment? = null
-    override fun getCurrent(): Enchantment? = currentEcm
-
-    override fun func_230456_a_(p_230456_1_: Int): ITextProperties {
-        return hold.entries.elementAtOrNull(p_230456_1_)?.let { (ecm, levelI) ->
-            currentEcm = ecm
-            // TODO i18n
-            val maxLevel = I18n.format("enchantment.level.${ecm.maxLevel}")
-            val page = (ecm.getDisplayName(ecm.minLevel) as TextComponent)
-            for(i in (ecm.maxLevel - 1) downTo (ecm.minLevel - 1)) {
-                val levelOfi = levelI.toDouble() / (1 shl i)
-                if(levelOfi >= 1) {
-                    val iLevel = I18n.format("enchantment.level.${i + 1}")
-                    page.appendString(":\n $levelOfi of Level $iLevel")
-                }
-            }
-            page.appendString("\n  Limit: ${UInt.MAX_VALUE shr (ecm.maxLevel - 1)} of Level $maxLevel")
-        } ?: ITextProperties.field_240651_c_
-    }
 }

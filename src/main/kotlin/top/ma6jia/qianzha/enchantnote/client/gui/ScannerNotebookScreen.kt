@@ -8,13 +8,14 @@ import net.minecraft.util.math.BlockPos
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
+import top.ma6jia.qianzha.enchantnote.client.utils.KeeperBookInfoHandler
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
 import top.ma6jia.qianzha.enchantnote.network.message.ScannerSelectMsg
 
 
 @OnlyIn(Dist.CLIENT)
 class ScannerNotebookScreen(
-    private val bookInfoIn: IEnchantKeeper,
+    private val bookInfoIn: KeeperBookInfoHandler,
     private val pos: BlockPos?
 ) : ReadBookScreen(bookInfoIn) {
     override fun addDoneButton() {
@@ -23,7 +24,7 @@ class ScannerNotebookScreen(
         ) {
             pos?.let {
                 ENoteNetwork.CHANNEL.sendToServer(ScannerSelectMsg(
-                    pos, bookInfoIn.getCurrent()?.registryName?.toString() ?: ""
+                    pos, bookInfoIn.currentEcm?.registryName.toString()
                 ))
             }
             minecraft!!.displayGuiScreen(
