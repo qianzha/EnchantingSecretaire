@@ -17,6 +17,7 @@ import top.ma6jia.qianzha.enchantnote.tileentity.ENoteTileEntities
 object ClientHandler {
     fun register() {
         MOD_BUS.addListener(::onRenderTypeSetup)
+        FORGE_BUS.addListener(this::onTooltip)
     }
 
     private fun onRenderTypeSetup(event: FMLClientSetupEvent) {
@@ -24,5 +25,15 @@ object ClientHandler {
             RenderTypeLookup.setRenderLayer(ENoteBlocks.ENCHANT_SCANNER, RenderType.getCutout())
             ClientRegistry.bindTileEntityRenderer(ENoteTileEntities.ENCHANT_SCANNER, ::EnchantScannerTER)
         }
+    }
+
+    private fun onTooltip(event: ItemTooltipEvent) {
+        event.itemStack.getCapability(ENoteCapability.ENCHANT_KEEPER_CAPABILITY)
+            .ifPresent {
+                event.toolTip.add(
+                    TranslationTextComponent(
+                    "tooltip.enchantnote.keeper.num", it.numOfEnchantments())
+                )
+            }
     }
 }
