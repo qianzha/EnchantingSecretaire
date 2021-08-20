@@ -31,7 +31,6 @@ object EnchantNote {
         log.info("Hello Init")
 
         MOD_BUS.addListener(this::onSetUpEvent)
-        FORGE_BUS.addListener(this::attachCap)
         FORGE_BUS.addListener(this::onBlockBreak)
 
         ENoteBlocks.REGISTRY.register(MOD_BUS)
@@ -49,16 +48,6 @@ object EnchantNote {
                 ::EnchantKeeper
             )
             ENoteNetwork.register()
-        }
-    }
-
-    private fun attachCap(event: AttachCapabilitiesEvent<ItemStack>){
-        val stack : Any = event.`object`
-        if(stack is ItemStack && stack.item === ENoteItems.ENCHANT_NOTE) {
-            event.addCapability(
-                ResourceLocation(MODID, "enchant_keeper"),
-                EnchantKeeperProvider()
-            )
         }
     }
 
