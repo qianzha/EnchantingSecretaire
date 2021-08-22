@@ -2,6 +2,7 @@ package top.ma6jia.qianzha.enchantnote.block
 
 import net.minecraft.block.*
 import net.minecraft.block.material.Material
+import net.minecraft.block.material.MaterialColor
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.item.ItemStack
@@ -28,7 +29,7 @@ import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
 class EnchantScannerBlock : Block(
     (
-            Properties.create(Material.ANVIL)
+            Properties.create(Material.ANVIL, MaterialColor.IRON)
                 .hardnessAndResistance(5.0F, 1200.0F)
                 .sound(SoundType.ANVIL)
                 .notSolid()
@@ -95,6 +96,8 @@ class EnchantScannerBlock : Block(
             else -> NORTH_SHAPE
         }
     }
+
+
 
     override fun hasTileEntity(state: BlockState?) = true
 

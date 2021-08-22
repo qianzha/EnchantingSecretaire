@@ -3,6 +3,7 @@
 	"parent": "block/block",
 	"ambientocclusion": false,
 	"textures": {
+		"particle": "block/anvil",
 		"body": "block/anvil",
 		"1_top": "block/anvil_top",
 		"8_top": "block/cauldron_top",

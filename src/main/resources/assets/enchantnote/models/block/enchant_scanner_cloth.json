@@ -3,6 +3,7 @@
 	"parent": "block/block",
 	"ambientocclusion": false,
 	"textures": {
+		"particle": "enchantnote:block/enchanting_table_cloth",
 		"9_side": "enchantnote:block/enchanting_table_cloth_side",
 		"9_top": "enchantnote:block/enchanting_table_cloth"
 	},
