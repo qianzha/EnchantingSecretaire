@@ -1,6 +1,8 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
 import net.minecraft.enchantment.Enchantment
+import net.minecraft.enchantment.EnchantmentData
+import net.minecraft.item.EnchantedBookItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 
@@ -29,12 +31,14 @@ class EnchantKeeper : IEnchantKeeper {
             request == levelI -> hold.remove(enchantment)
             else -> hold[enchantment] = levelI - request
         }
-        val res = if(target.item === Items.BOOK)
-                ItemStack(Items.ENCHANTED_BOOK, target.count)
-            else
-                target.copy()
-        res.addEnchantment(enchantment, level)
-        return res
+        return if (target.item === Items.BOOK)
+            ItemStack(Items.ENCHANTED_BOOK, target.count).apply {
+                EnchantedBookItem.addEnchantment(this, EnchantmentData(enchantment, level))
+            }
+        else
+            target.copy().apply {
+                addEnchantment(enchantment, level)
+            }
     }
 
     override fun getLevelI(enchantment: Enchantment): UInt =
