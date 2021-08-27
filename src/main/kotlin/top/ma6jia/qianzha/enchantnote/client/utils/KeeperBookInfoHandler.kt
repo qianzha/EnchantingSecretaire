@@ -11,11 +11,11 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 
 @OnlyIn(Dist.CLIENT)
-class KeeperBookInfoHandler(private val keeper: IEnchantKeeper): ReadBookScreen.IBookInfo {
+class KeeperBookInfoHandler(private val keeper: IEnchantKeeper) : ReadBookScreen.IBookInfo {
 
     override fun getPageCount(): Int = keeper.numOfEnchantments()
 
-    var currentEcm : Enchantment? = null
+    var currentEcm: Enchantment? = null
         private set
 
     override fun func_230456_a_(p_230456_1_: Int): ITextProperties {
@@ -24,19 +24,23 @@ class KeeperBookInfoHandler(private val keeper: IEnchantKeeper): ReadBookScreen.
             // TODO i18n
             val maxLevel = I18n.format("enchantment.level.${ecm.maxLevel}")
             val page = (ecm.getDisplayName(ecm.minLevel) as TextComponent)
-            for(i in (ecm.maxLevel - 1) downTo (ecm.minLevel - 1)) {
+            for (i in (ecm.maxLevel - 1) downTo (ecm.minLevel - 1)) {
                 val levelOfi = levelI.toDouble() / (1 shl i)
-                if(levelOfi >= 1) {
+                if (levelOfi >= 1) {
                     val iLevel = I18n.format("enchantment.level.${i + 1}")
-                    page.appendSibling(TranslationTextComponent(
-                        "gui.keeper.enchant.level_num", levelOfi, iLevel
-                    ))
+                    page.appendSibling(
+                        TranslationTextComponent(
+                            "gui.enchantnote.keeper.level_num", levelOfi, iLevel
+                        )
+                    )
                 }
             }
-            page.appendSibling(TranslationTextComponent(
-                "gui.keeper.enchant.max_limit",
-                UInt.MAX_VALUE shr (ecm.maxLevel - 1), maxLevel
-            ))
+            page.appendSibling(
+                TranslationTextComponent(
+                    "gui.enchantnote.keeper.max_limit",
+                    UInt.MAX_VALUE shr (ecm.maxLevel - 1), maxLevel
+                )
+            )
         } ?: ITextProperties.field_240651_c_
     }
 }

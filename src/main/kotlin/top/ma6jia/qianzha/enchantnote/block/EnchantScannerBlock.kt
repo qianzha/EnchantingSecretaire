@@ -23,6 +23,7 @@ import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.world.IBlockReader
 import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
+import net.minecraftforge.common.util.Constants
 import top.ma6jia.qianzha.enchantnote.item.ENoteItems
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
 
@@ -98,7 +99,6 @@ class EnchantScannerBlock : Block(
     }
 
 
-
     override fun hasTileEntity(state: BlockState?) = true
 
     override fun createTileEntity(state: BlockState?, world: IBlockReader?): TileEntity {
@@ -114,7 +114,7 @@ class EnchantScannerBlock : Block(
                 }
             }
         }
-        if(state[HAS_TABLE_CLOTH]) {
+        if (state[HAS_TABLE_CLOTH]) {
             spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_TABLE_CLOTH, 1))
         }
         spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_SCANNER, 1))
@@ -130,6 +130,7 @@ class EnchantScannerBlock : Block(
             if (player.heldItemMainhand.item == Items.STICK) {
                 val maxLevel = tileEntity.selected?.maxLevel ?: 1
                 tileEntity.selectedLevel = (tileEntity.selectedLevel % maxLevel) + 1
+                worldIn.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE)
             } else {
                 val inv = tileEntity.inventory
                 for (i in (inv.size - 1) downTo 0) {
@@ -139,7 +140,7 @@ class EnchantScannerBlock : Block(
                         return
                     }
                 }
-                if(state[HAS_TABLE_CLOTH]) {
+                if (state[HAS_TABLE_CLOTH]) {
                     spawnAsEntity(worldIn, pos.up(), ItemStack(ENoteItems.ENCHANT_TABLE_CLOTH, 1))
                     worldIn.setBlockState(pos, state.with(HAS_TABLE_CLOTH, false))
                 }
@@ -158,7 +159,7 @@ class EnchantScannerBlock : Block(
         val tileEntity = worldIn.getTileEntity(pos)
         val held = player.getHeldItem(handIn)
         if (worldIn.isRemote && tileEntity is EnchantScannerTE) {
-            if(tileEntity.inventory[2].insertItem(0, held, true).isEmpty)
+            if (tileEntity.inventory[2].insertItem(0, held, true).isEmpty)
                 return ActionResultType.SUCCESS
         }
         @Suppress("DEPRECATION")
@@ -168,7 +169,7 @@ class EnchantScannerBlock : Block(
         if (tileEntity is EnchantScannerTE) {
             if (!held.isEmpty) {
                 if (held.item == Items.STICK) {
-                    if (state.get(HAS_TABLE_CLOTH) && tileEntity.enchant()) {
+                    if (state.get(HAS_TABLE_CLOTH) && tileEntity.enchant(player)) {
                         worldIn.playSound(
                             null,
                             pos,
@@ -177,8 +178,7 @@ class EnchantScannerBlock : Block(
                             1.0F,
                             worldIn.rand.nextFloat() * 0.1F + 0.9F
                         )
-                    }
-                    else {
+                    } else {
                         (worldIn as ServerWorld).spawnParticle(
                             ParticleTypes.LARGE_SMOKE,
                             pos.x + 0.5,
@@ -192,12 +192,10 @@ class EnchantScannerBlock : Block(
                         )
 
                     }
-                }
-                else if (held.item == ENoteItems.ENCHANT_TABLE_CLOTH) {
+                } else if (held.item == ENoteItems.ENCHANT_TABLE_CLOTH) {
                     worldIn.setBlockState(pos, state.with(HAS_TABLE_CLOTH, true))
                     held.shrink(1)
-                }
-                else {
+                } else {
                     val stack = held.copy()
                     stack.count = 1
                     tileEntity.inventory.forEach {

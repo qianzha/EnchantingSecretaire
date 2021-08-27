@@ -1,10 +1,6 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.enchantment.EnchantmentData
-import net.minecraft.item.EnchantedBookItem
-import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 
 class EnchantKeeper : IEnchantKeeper {
     private val hold = linkedMapOf<Enchantment, UInt>()
@@ -21,24 +17,15 @@ class EnchantKeeper : IEnchantKeeper {
         }
     }
 
-    override fun enchant(target: ItemStack, enchantment: Enchantment, level: Int): ItemStack {
-        if (target.item !== Items.BOOK && !enchantment.canApply(target)) return ItemStack.EMPTY
-
-        val request = 1u shl (level - 1)
-        val levelI = getLevelI(enchantment)
-        when {
-            request > levelI -> return ItemStack.EMPTY
-            request == levelI -> hold.remove(enchantment)
-            else -> hold[enchantment] = levelI - request
-        }
-        return if (target.item === Items.BOOK)
-            ItemStack(Items.ENCHANTED_BOOK, target.count).apply {
-                EnchantedBookItem.addEnchantment(this, EnchantmentData(enchantment, level))
-            }
+    override fun set(enchantment: Enchantment, levelI: UInt) {
+        if (levelI != 0u)
+            hold[enchantment] = levelI
         else
-            target.copy().apply {
-                addEnchantment(enchantment, level)
-            }
+            remove(enchantment)
+    }
+
+    override fun remove(enchantment: Enchantment) {
+        hold.remove(enchantment)
     }
 
     override fun getLevelI(enchantment: Enchantment): UInt =

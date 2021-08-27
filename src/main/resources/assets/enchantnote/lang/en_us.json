@@ -6,6 +6,14 @@
   "tooltip.enchantnote.keeper.num": "Types of Enchantment: %d",
   "info.enchantnote.enchant_scanner": "Enchanting Secretaire is used to turn an Enchanted Book to a Book and record the enchantments into the Enchantment Notebook on it.\nIt has a desktop where the notebook, unenchanted equipment or book be placed. An Enchanted Book can be transform in it with an notebook put on the top. \nRight click with empty hands can open a gui of the notebook.\n These items just mentioned could be placed by right clicking while hand-holding, and could be taken orderly by left clicking.\nAutomation:\nUp: Input/Output - Notebook\nDown or Around: Input - Enchanted Book; Output - Book. ",
   "info.enchantnote.enchant_table_cloth": "Putting the Enchanting Table Cloth on the desktop of an Enchanting Secretaire, the enchantments recording in an Enchantment Notebook could be reuse: \n1. Open the GUI of the notebook on the desktop with an empty hand.\n2. Choose the page of the enchantment as target, then click the \"Done\" Button.\n3. Choose a enchantment level by left click with a stick.\n4. Right click to enchanting with a stick while there is an unenchanted equipment or book on the desktop. (Playing sound if success, otherwise LARGE_SMOKE particle appear.)",
-  "gui.keeper.enchant.level_num": "\n %d of Level %s",
-  "gui.keeper.enchant.max_limit": "\n  Limit: %d of Level %s"
+  "gui.enchantnote.keeper.level_num": "\n %d of Level %s",
+  "gui.enchantnote.keeper.max_limit": "\n  Limit: %d of Level %s",
+  "info.enchantnote.scanner.ok": " Enchantment is compatible.",
+  "info.enchantnote.scanner.level_up": " Combining enchantments to a higher level.",
+  "info.enchantnote.scanner.max_level": " The highest level enchantment exists!",
+  "info.enchantnote.scanner.incompatible": " Incompatible with existing enchantments!",
+  "info.enchantnote.scanner.not_stack": " There is not a target item!",
+  "info.enchantnote.scanner.inapplicable": " The enchantment is inapplicable to the item!",
+  "info.enchantnote.scanner.enchanted_disabled": " Enchanting enchanted item is disabled!",
+  "info.enchantnote.scanner.cost_limit": " Too Expensive!"
 }

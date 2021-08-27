@@ -1,7 +1,6 @@
 package top.ma6jia.qianzha.enchantnote.capability
 
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.nbt.INBT
 import net.minecraft.nbt.IntNBT
@@ -16,9 +15,16 @@ interface IEnchantKeeper {
      * @param levelI level to multiply
      * @return level out of limit. Learn detail at [getLevelI]
      */
-    fun insert(enchantment: Enchantment, levelI: UInt) : UInt
+    fun insert(enchantment: Enchantment, levelI: UInt): UInt
 
-    fun enchant(target: ItemStack, enchantment: Enchantment, level: Int) : ItemStack
+    operator fun set(enchantment: Enchantment, levelI: UInt)
+
+    /**
+     * @see getLevelI
+     */
+    operator fun get(enchantment: Enchantment): UInt = getLevelI(enchantment)
+
+    fun remove(enchantment: Enchantment)
 
     /**
      * @param enchantment
@@ -64,5 +70,5 @@ interface IEnchantKeeper {
             }
         }
     }
-    
+
 }

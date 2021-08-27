@@ -5,6 +5,7 @@ import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.inventory.container.RepairContainer
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundNBT
@@ -23,7 +24,10 @@ import net.minecraftforge.registries.ForgeRegistries
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
 import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_CAPABILITY
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
+import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils
+import top.ma6jia.qianzha.enchantnote.config.ENoteCommonConfig
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
+import kotlin.math.ceil
 
 class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     private val keeperStackHandler = object : ItemStackHandler(1) {
@@ -89,7 +93,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
 
     private val enchantable = object : ItemStackHandler(1) {
         override fun isItemValid(slot: Int, stack: ItemStack): Boolean {
-            return stack.isEnchantable
+            return stack.isEnchantable || stack.isEnchanted
         }
 
         override fun onContentsChanged(slot: Int) {
@@ -101,24 +105,74 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     }
 
     val inventory = listOf(keeperStackHandler, bookshelfHandler, enchantable)
-    var selected : Enchantment? = null
-        set(value) {
-            field = value
-            world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
-        }
-    fun setSelected(registryName: String) {
-        this.selected = ForgeRegistries.ENCHANTMENTS
-            .getValue(ResourceLocation(registryName))
-        this.selectedLevel = selected?.minLevel ?: 1
-        world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
-    }
+    var selected: Enchantment? = null
     var selectedLevel: Int = 1
         set(value) {
             this.selected?.let {
                 field = MathHelper.clamp(value, it.minLevel, it.maxLevel)
             }
-            world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
         }
+    var info = EnchInfo.NOT_STACK
+        private set
+
+    fun setSelected(registryName: String, level: Int = (selected?.minLevel ?: 1)) {
+        this.selected = ForgeRegistries.ENCHANTMENTS
+            .getValue(ResourceLocation(registryName))
+        this.selectedLevel = level
+        world!!.notifyBlockUpdate(pos, blockState, blockState, Constants.BlockFlags.BLOCK_UPDATE)
+    }
+
+    private fun setInfo(info: EnchInfo) {
+        this.info = if (!info.isEnchantable || getCost() < ENoteCommonConfig.ENCHANT_COST_LIMIT.get()) {
+            info
+        } else {
+            EnchInfo.COST_LIMIT
+        }
+    }
+
+    fun getCost(): Int = if (info.isEnchantable) {
+        getEnchantable().repairCost +
+                selectedLevel * maxOf(
+            1,
+            ceil(EnchantmentUtils.getMultiplier(selected!!) * ENoteCommonConfig.ENCHANT_MULTIPLIER.get()).toInt()
+        )
+    } else {
+        -1
+    }
+
+    fun checkEnchantable() {
+        val stack = getEnchantable()
+        if (ENoteCommonConfig.ENCHANTED_DISABLED.get() && stack.isEnchanted) {
+            setInfo(EnchInfo.ENCHANTED_DISABLED)
+        } else if (!stack.isEmpty && selected != null) {
+            EnchantmentHelper.getEnchantments(stack).forEach { (ecm, level) ->
+                if (ecm === selected) {
+                    selectedLevel = level
+                    if (level < ecm.maxLevel) {
+                        setInfo(EnchInfo.LEVEL_UP)
+                    } else {
+                        setInfo(EnchInfo.MAX_LEVEL)
+                    }
+                    return
+                } else if (!selected!!.isCompatibleWith(ecm)) {
+                    setInfo(EnchInfo.INCOMPATIBLE)
+                    return
+                }
+            }
+            if (when (stack.item) {
+                    Items.BOOK, Items.ENCHANTED_BOOK -> selected!!.isAllowedOnBooks
+                    else -> selected!!.canApply(stack)
+                }
+            ) {
+                setInfo(EnchInfo.OK)
+            } else {
+                setInfo(EnchInfo.INAPPLICABLE)
+            }
+        } else {
+            info = EnchInfo.NOT_STACK
+        }
+    }
+
     override fun getUpdatePacket(): SUpdateTileEntityPacket {
         return SUpdateTileEntityPacket(pos, 1, updateTag)
     }
@@ -129,23 +183,26 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     }
 
     override fun getUpdateTag(): CompoundNBT {
+        checkEnchantable()
         val nbt = super.getUpdateTag()
         nbt.put("enchantable", enchantable.getStackInSlot(0).write(CompoundNBT()))
         nbt.putString("selected", selected?.registryName.toString())
         nbt.putInt("level", selectedLevel)
+        nbt.putInt("info", info.ordinal)
         return nbt
     }
 
     override fun handleUpdateTag(state: BlockState?, tag: CompoundNBT?) {
         super.handleUpdateTag(state, tag)
         enchantable.setStackInSlot(0, ItemStack.read(tag!!.getCompound("enchantable")))
-        setSelected(tag.getString("selected"))
-        selectedLevel = tag.getInt("level")
+        setSelected(tag.getString("selected"), tag.getInt("level"))
+        this.info = EnchInfo.values()[tag.getInt("info")]
     }
 
-    fun getKeeper() : LazyOptional<IEnchantKeeper> =
+    fun getKeeper(): LazyOptional<IEnchantKeeper> =
         keeperStackHandler.getStackInSlot(0).getCapability(ENCHANT_KEEPER_CAPABILITY)
-    fun getEnchantable() : ItemStack = enchantable.getStackInSlot(0)
+
+    fun getEnchantable(): ItemStack = enchantable.getStackInSlot(0)
 
     fun checkHasKeeper() {
         val newState = blockState.with(
@@ -193,17 +250,64 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         }
     }
 
-    fun enchant() : Boolean {
-        val stack = getEnchantable()
-        if(stack.isEnchanted) return false
-        this.selected?.let { ecm ->
-            getKeeper().ifPresent {  keeper ->
-                val res = keeper.enchant(stack, ecm, selectedLevel)
-                if(!res.isEmpty) {
-                    enchantable.setStackInSlot(0, res)
+    fun enchant(player: PlayerEntity): Boolean {
+        return enchantRes().let {
+            if (!it.isEmpty) {
+                val cost = getCost()
+                if (!player.isCreative) {
+                    if (player.experienceLevel < cost)
+                        return false
+                    player.addExperienceLevel(-cost)
                 }
+                val raw = getEnchantable()
+                if (ENoteCommonConfig.PRIOR_WORK_PENALTY.get() &&
+                    EnchantmentHelper.getEnchantments(raw).size >= ENoteCommonConfig.PENALTY_START_NUM.get()
+                ) {
+                    it.repairCost = RepairContainer.getNewRepairCost(raw.repairCost)
+                }
+                enchantable.setStackInSlot(0, it)
+            }
+            !it.isEmpty
+        }
+
+    }
+
+    fun enchantRes(): ItemStack {
+        var stack = ItemStack.EMPTY
+        if (info.isEnchantable && selected != null) {
+            val ench = selected!!
+            getKeeper().ifPresent {
+                val request = 1u shl (selectedLevel - 1)
+                val levelI = it[ench]
+                if (request > levelI) {
+                    return@ifPresent
+                }
+                it[ench] = levelI - request
+                stack = if (getEnchantable().item === Items.BOOK) {
+                    ItemStack(Items.ENCHANTED_BOOK, 1)
+                } else {
+                    getEnchantable().copy()
+                }
+                val map = EnchantmentHelper.getEnchantments(stack)
+                map[ench] = if (map[ench] == selectedLevel) selectedLevel + 1 else selectedLevel
+                EnchantmentHelper.setEnchantments(map, stack)
             }
         }
-        return getEnchantable().isEnchanted
+        return stack
+    }
+
+    enum class EnchInfo(id: String, val isEnchantable: Boolean = false) {
+        OK("ok", true),
+        LEVEL_UP("level_up", true),
+        MAX_LEVEL("max_level"),
+        INCOMPATIBLE("incompatible"),
+        NOT_STACK("not_stack"),
+        INAPPLICABLE("inapplicable"),
+
+        ENCHANTED_DISABLED("enchanted_disabled"),
+        COST_LIMIT("cost_limit"),
+        ;
+
+        val i18nRL = "info.enchantnote.scanner.$id"
     }
 }

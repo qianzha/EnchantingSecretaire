@@ -1,21 +1,20 @@
 package top.ma6jia.qianzha.enchantnote
 
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.capabilities.CapabilityManager
-import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
+import net.minecraftforge.fml.config.ModConfig
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import thedarkcolour.kotlinforforge.forge.runWhenOn
 import top.ma6jia.qianzha.enchantnote.block.ENoteBlocks
 import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeper
-import top.ma6jia.qianzha.enchantnote.capability.EnchantKeeperProvider
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 import top.ma6jia.qianzha.enchantnote.client.ClientHandler
+import top.ma6jia.qianzha.enchantnote.config.ENoteCommonConfig
 import top.ma6jia.qianzha.enchantnote.item.ENoteItems
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
 import top.ma6jia.qianzha.enchantnote.tileentity.ENoteTileEntities
@@ -29,6 +28,9 @@ object EnchantNote {
 
     init {
         log.info("Hello Init")
+
+        val mlContent = ModLoadingContext.get()
+        mlContent.registerConfig(ModConfig.Type.COMMON, ENoteCommonConfig.COMMON_CONFIG)
 
         MOD_BUS.addListener(this::onSetUpEvent)
         FORGE_BUS.addListener(this::onBlockBreak)
@@ -52,7 +54,7 @@ object EnchantNote {
     }
 
     private fun onBlockBreak(event: BlockEvent.BreakEvent) {
-        if(event.player.isCreative && event.player.isSneaking && event.state.block === ENoteBlocks.ENCHANT_SCANNER) {
+        if (event.player.isCreative && event.player.isSneaking && event.state.block === ENoteBlocks.ENCHANT_SCANNER) {
             event.isCanceled = true
             event.state.onBlockClicked(event.player.world, event.pos, event.player)
         }
