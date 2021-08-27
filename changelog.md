@@ -6,7 +6,7 @@
 2. Enhanced enchanting system by making it anvil-like and configurable.
     - Enchanting enchanted item  
     config: Disabled
-    - Cost experience while enchanting. By default, it is like enchanting item at an anvil with an enchanted book.  
+    - Cost experience when enchant. By default, it is like enchanting item at an anvil with an enchanted book.  
     config: A factor of the cost
     - Enchanting will get "prior work penalty" as anvil do if the target item has specified quantity of enchantments.  
     config: Enabled; The specified quantity
