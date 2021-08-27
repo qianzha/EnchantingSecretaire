@@ -15,5 +15,5 @@
   "info.enchantnote.scanner.not_stack": " 未放置要附魔的物品！",
   "info.enchantnote.scanner.inapplicable": " 此附魔不适用于该物品！",
   "info.enchantnote.scanner.enchanted_disabled": " 禁用了附魔已附魔物品！",
-  "info.enchantnote.scanner.cost_limit": " 过于昂贵！"
+  "info.enchantnote.scanner.no_table_cloth": " 未放置附魔桌布！"
 }

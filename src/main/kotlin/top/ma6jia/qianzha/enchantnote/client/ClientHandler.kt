@@ -13,13 +13,12 @@ import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 import top.ma6jia.qianzha.enchantnote.block.ENoteBlocks
 import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability
-import top.ma6jia.qianzha.enchantnote.client.gui.ScannerInfoScreen
+import top.ma6jia.qianzha.enchantnote.client.gui.ScannerInfoHUD
 import top.ma6jia.qianzha.enchantnote.client.renderer.EnchantScannerTER
 import top.ma6jia.qianzha.enchantnote.tileentity.ENoteTileEntities
 
 
 object ClientHandler {
-    private val scannerHUD = ScannerInfoScreen()
     fun register() {
         MOD_BUS.addListener(this::onRenderTypeSetup)
         FORGE_BUS.addListener(this::onTooltip)
@@ -47,12 +46,12 @@ object ClientHandler {
 
     private fun onRenderOverlay(event: RenderGameOverlayEvent) {
         if (event.type == RenderGameOverlayEvent.ElementType.TEXT)
-            scannerHUD.render(event.matrixStack)
+            ScannerInfoHUD.render(event.matrixStack)
     }
 
     private fun onDrawHighlight(event: DrawHighlightEvent) {
         val target = event.target
-        scannerHUD.pos = if (target is BlockRayTraceResult)
+        ScannerInfoHUD.pos = if (target is BlockRayTraceResult)
             target.pos else null
     }
 }

@@ -24,9 +24,9 @@ import net.minecraftforge.registries.ForgeRegistries
 import top.ma6jia.qianzha.enchantnote.block.EnchantScannerBlock
 import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_CAPABILITY
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
-import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils
 import top.ma6jia.qianzha.enchantnote.config.ENoteCommonConfig
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
+import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils
 import kotlin.math.ceil
 
 class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
@@ -123,11 +123,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     }
 
     private fun setInfo(info: EnchInfo) {
-        this.info = if (!info.isEnchantable || getCost() < ENoteCommonConfig.ENCHANT_COST_LIMIT.get()) {
-            info
-        } else {
-            EnchInfo.COST_LIMIT
-        }
+        this.info = info
     }
 
     fun getCost(): Int = if (info.isEnchantable) {
@@ -141,6 +137,10 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     }
 
     fun checkEnchantable() {
+        if (!blockState[EnchantScannerBlock.HAS_TABLE_CLOTH]) {
+            setInfo(EnchInfo.NO_TABLE_CLOTH)
+            return
+        }
         val stack = getEnchantable()
         if (ENoteCommonConfig.ENCHANTED_DISABLED.get() && stack.isEnchanted) {
             setInfo(EnchInfo.ENCHANTED_DISABLED)
@@ -255,6 +255,8 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
             if (!it.isEmpty) {
                 val cost = getCost()
                 if (!player.isCreative) {
+                    if (EnchantmentUtils.isCostLimit(cost))
+                        return false
                     if (player.experienceLevel < cost)
                         return false
                     player.addExperienceLevel(-cost)
@@ -305,7 +307,8 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         INAPPLICABLE("inapplicable"),
 
         ENCHANTED_DISABLED("enchanted_disabled"),
-        COST_LIMIT("cost_limit"),
+
+        NO_TABLE_CLOTH("no_table_cloth"),
         ;
 
         val i18nRL = "info.enchantnote.scanner.$id"

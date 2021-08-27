@@ -15,5 +15,5 @@
   "info.enchantnote.scanner.not_stack": " There is not a target item!",
   "info.enchantnote.scanner.inapplicable": " The enchantment is inapplicable to the item!",
   "info.enchantnote.scanner.enchanted_disabled": " Enchanting enchanted item is disabled!",
-  "info.enchantnote.scanner.cost_limit": " Too Expensive!"
+  "info.enchantnote.scanner.no_table_cloth": " Request Enchanting Table Cloth!"
 }
