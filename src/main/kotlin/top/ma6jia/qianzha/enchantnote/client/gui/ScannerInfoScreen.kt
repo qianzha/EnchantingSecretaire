@@ -19,7 +19,8 @@ class ScannerInfoScreen : AbstractGui() {
         val TEXT_EXPENSIVE = TranslationTextComponent("container.repair.expensive")
     }
 
-    private val mc: Minecraft = Minecraft.getInstance()
+    private val mc: Minecraft
+        get() = Minecraft.getInstance()
     var pos: BlockPos? = null
 
     fun render(matrix: MatrixStack) {

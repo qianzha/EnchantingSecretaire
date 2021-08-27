@@ -106,6 +106,7 @@ class EnchantScannerBlock : Block(
     }
 
     override fun onBlockHarvested(worldIn: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+        super.onBlockHarvested(worldIn, pos, state, player)
         val tileEntity = worldIn.getTileEntity(pos)
         if (tileEntity is EnchantScannerTE) {
             tileEntity.inventory.forEach {
@@ -114,11 +115,6 @@ class EnchantScannerBlock : Block(
                 }
             }
         }
-        if (state[HAS_TABLE_CLOTH]) {
-            spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_TABLE_CLOTH, 1))
-        }
-        spawnAsEntity(worldIn, pos, ItemStack(ENoteItems.ENCHANT_SCANNER, 1))
-        super.onBlockHarvested(worldIn, pos, state, player)
     }
 
     override fun onBlockClicked(state: BlockState, worldIn: World, pos: BlockPos, player: PlayerEntity) {
@@ -194,13 +190,13 @@ class EnchantScannerBlock : Block(
                     }
                 } else if (held.item == ENoteItems.ENCHANT_TABLE_CLOTH) {
                     worldIn.setBlockState(pos, state.with(HAS_TABLE_CLOTH, true))
-                    held.shrink(1)
+                    if (!player.isCreative) held.shrink(1)
                 } else {
                     val stack = held.copy()
                     stack.count = 1
                     tileEntity.inventory.forEach {
                         if (it.insertItem(0, stack, false).isEmpty) {
-                            held.shrink(1)
+                            if (!player.isCreative) held.shrink(1)
                             player.setHeldItem(handIn, held)
                             return ActionResultType.SUCCESS
                         }
