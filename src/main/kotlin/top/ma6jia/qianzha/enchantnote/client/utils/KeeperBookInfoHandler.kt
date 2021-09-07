@@ -9,6 +9,9 @@ import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
+import top.ma6jia.qianzha.enchantnote.utils.maxLvl
+import top.ma6jia.qianzha.enchantnote.utils.minLvl
+import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils as Utils
 
 @OnlyIn(Dist.CLIENT)
 class KeeperBookInfoHandler(private val keeper: IEnchantKeeper) : ReadBookScreen.IBookInfo {
@@ -22,9 +25,9 @@ class KeeperBookInfoHandler(private val keeper: IEnchantKeeper) : ReadBookScreen
         return keeper.entities().elementAtOrNull(p_230456_1_)?.let { (ecm, levelI) ->
             currentEcm = ecm
             // TODO i18n
-            val maxLevel = I18n.format("enchantment.level.${ecm.maxLevel}")
-            val page = (ecm.getDisplayName(ecm.minLevel) as TextComponent)
-            for (i in (ecm.maxLevel - 1) downTo (ecm.minLevel - 1)) {
+            val maxLevel = I18n.format("enchantment.level.${ecm.maxLvl()}")
+            val page = (ecm.getDisplayName(ecm.minLvl()) as TextComponent)
+            for (i in (ecm.maxLvl() - 1) downTo (ecm.minLvl() - 1)) {
                 val levelOfi = levelI.toDouble() / (1 shl i)
                 if (levelOfi >= 1) {
                     val iLevel = I18n.format("enchantment.level.${i + 1}")
@@ -38,7 +41,7 @@ class KeeperBookInfoHandler(private val keeper: IEnchantKeeper) : ReadBookScreen
             page.appendSibling(
                 TranslationTextComponent(
                     "gui.enchantnote.keeper.max_limit",
-                    UInt.MAX_VALUE shr (ecm.maxLevel - 1), maxLevel
+                    UInt.MAX_VALUE shr (ecm.maxLvl() - 1), maxLevel
                 )
             )
         } ?: ITextProperties.field_240651_c_

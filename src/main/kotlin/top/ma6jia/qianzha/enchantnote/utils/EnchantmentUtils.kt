@@ -17,3 +17,6 @@ object EnchantmentUtils {
     fun isCostLimit(cost: Int): Boolean =
         cost >= ENoteCommonConfig.ENCHANT_COST_LIMIT.get()
 }
+
+fun Enchantment.minLvl() = IEnchHandler.getInstance().getMinLvl(this)
+fun Enchantment.maxLvl() = IEnchHandler.getInstance().getMaxLvl(this)

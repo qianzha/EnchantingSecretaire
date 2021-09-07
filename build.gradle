@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.1.0'
+version = '1.2.0'
 group = 'top.ma6jia.qianzha'
 archivesBaseName = 'enchantnote'
 
@@ -84,7 +84,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.5-36.1.32'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.1.65'
 	implementation 'thedarkcolour:kotlinforforge:1.14.0'
 
     compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api")

@@ -26,6 +26,7 @@ import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.util.Constants
 import top.ma6jia.qianzha.enchantnote.item.ENoteItems
 import top.ma6jia.qianzha.enchantnote.tileentity.EnchantScannerTE
+import top.ma6jia.qianzha.enchantnote.utils.maxLvl
 
 
 class EnchantScannerBlock : Block(
@@ -124,7 +125,7 @@ class EnchantScannerBlock : Block(
         val tileEntity = worldIn.getTileEntity(pos)
         if (tileEntity is EnchantScannerTE) {
             if (player.heldItemMainhand.item == Items.STICK) {
-                val maxLevel = tileEntity.selected?.maxLevel ?: 1
+                val maxLevel = tileEntity.selected?.maxLvl() ?: 1
                 tileEntity.selectedLevel = (tileEntity.selectedLevel % maxLevel) + 1
                 worldIn.notifyBlockUpdate(pos, state, state, Constants.BlockFlags.BLOCK_UPDATE)
             } else {

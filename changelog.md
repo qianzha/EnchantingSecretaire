@@ -1,5 +1,9 @@
 > `TODO`  
-> Graphic introduction
+
+**v1.2.0**  
+1. Made compatible with mods that changed max level of enchantments by non-vanilla way:
+    - Apotheosis  
+
 ---
 **v1.1.0**
 1. Changed text display of Enchanting Secretaire to HUD, instead of TER.

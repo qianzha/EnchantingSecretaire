@@ -26,8 +26,10 @@ import top.ma6jia.qianzha.enchantnote.capability.ENoteCapability.ENCHANT_KEEPER_
 import top.ma6jia.qianzha.enchantnote.capability.IEnchantKeeper
 import top.ma6jia.qianzha.enchantnote.config.ENoteCommonConfig
 import top.ma6jia.qianzha.enchantnote.network.ENoteNetwork
-import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils
+import top.ma6jia.qianzha.enchantnote.utils.maxLvl
+import top.ma6jia.qianzha.enchantnote.utils.minLvl
 import kotlin.math.ceil
+import top.ma6jia.qianzha.enchantnote.utils.EnchantmentUtils as Utils
 
 class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     private val keeperStackHandler = object : ItemStackHandler(1) {
@@ -109,13 +111,13 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
     var selectedLevel: Int = 1
         set(value) {
             this.selected?.let {
-                field = MathHelper.clamp(value, it.minLevel, it.maxLevel)
+                field = MathHelper.clamp(value, it.minLvl(), it.maxLvl())
             }
         }
     var info = EnchInfo.NOT_STACK
         private set
 
-    fun setSelected(registryName: String, level: Int = (selected?.minLevel ?: 1)) {
+    fun setSelected(registryName: String, level: Int = (selected?.minLvl() ?: 1)) {
         this.selected = ForgeRegistries.ENCHANTMENTS
             .getValue(ResourceLocation(registryName))
         this.selectedLevel = level
@@ -130,7 +132,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
         getEnchantable().repairCost +
                 selectedLevel * maxOf(
             1,
-            ceil(EnchantmentUtils.getMultiplier(selected!!) * ENoteCommonConfig.ENCHANT_MULTIPLIER.get()).toInt()
+            ceil(Utils.getMultiplier(selected!!) * ENoteCommonConfig.ENCHANT_MULTIPLIER.get()).toInt()
         )
     } else {
         -1
@@ -148,7 +150,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
             EnchantmentHelper.getEnchantments(stack).forEach { (ecm, level) ->
                 if (ecm === selected) {
                     selectedLevel = level
-                    if (level < ecm.maxLevel) {
+                    if (level < ecm.maxLvl()) {
                         setInfo(EnchInfo.LEVEL_UP)
                     } else {
                         setInfo(EnchInfo.MAX_LEVEL)
@@ -255,7 +257,7 @@ class EnchantScannerTE : TileEntity(ENoteTileEntities.ENCHANT_SCANNER) {
             if (!it.isEmpty) {
                 val cost = getCost()
                 if (!player.isCreative) {
-                    if (EnchantmentUtils.isCostLimit(cost))
+                    if (Utils.isCostLimit(cost))
                         return false
                     if (player.experienceLevel < cost)
                         return false
